@@ -1,0 +1,1178 @@
+<!DOCTYPE html>
+<html><head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<script src="support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin="">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:wght@400;500;600;700&amp;family=Caveat:wght@500&amp;family=Geist:wght@400;500;600&amp;family=Inter:wght@400;500;600&amp;family=Space+Grotesk:wght@400;500;600&amp;display=swap">
+<style>
+html,body{margin:0;padding:0;height:100%;overflow:hidden;background:#1a1714;overscroll-behavior:none;-webkit-tap-highlight-color:transparent;-webkit-text-size-adjust:100%;}
+body{font-family:'Geist',system-ui,sans-serif;color:#171717;-webkit-font-smoothing:antialiased;}
+a{color:#3F746E;text-decoration:underline;}
+a:hover{color:#2f5a55;}
+:focus-visible{outline:2px solid #ffffff !important;outline-offset:2px;box-shadow:0 0 0 5px #171717 !important;}
+@keyframes scrollDot{0%{transform:translate(-50%,0);opacity:0}25%{opacity:1}70%{transform:translate(-50%,0.45em);opacity:0}100%{transform:translate(-50%,0.45em);opacity:0}}
+@keyframes spotPulse{0%{transform:scale(0.55);opacity:0.9}70%{transform:scale(1.35);opacity:0}100%{transform:scale(1.35);opacity:0}}
+@media (prefers-reduced-motion: reduce){*,*::before,*::after{transition-duration:0.01ms !important;animation:none !important;}}
+</style>
+<script src="image-slot.js"></script>
+<script src="three-lib.js"></script>
+<script src="carousel-render.js"></script>
+<script src="case-studies.js"></script>
+<meta name="ext-resource-dependency" content="./assets/arth-hero.webp">
+<script src="apartment-scene.js"></script>
+
+<template id="__bundler_thumbnail"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><rect width="100" height="100" fill="#3F746E"/><path d="M30 70V44l20-16 20 16v26H56V54H44v16z" fill="#F3EEE4"/></svg></template>
+</helmet>
+<img data-arth-thumb="1" src="./assets/arth-card.webp" alt="" aria-hidden="true" style="position:fixed;width:1px;height:1px;opacity:0;pointer-events:none;left:-10px;top:-10px;">
+<img data-propvr-thumb="1" src="./assets/propvr-card.webp" alt="" aria-hidden="true" style="position:fixed;width:1px;height:1px;opacity:0;pointer-events:none;left:-10px;top:-10px;">
+<img data-exp-thumb="1" src="./assets/experience-card.webp" alt="" aria-hidden="true" style="position:fixed;width:1px;height:1px;opacity:0;pointer-events:none;left:-10px;top:-10px;">
+<img data-dial-thumb="1" src="./assets/dial-card.webp" alt="" aria-hidden="true" style="position:fixed;width:1px;height:1px;opacity:0;pointer-events:none;left:-10px;top:-10px;">
+<img data-shelf-photo="1" src="./assets/shruti-photo-v2.webp" alt="" aria-hidden="true" style="position:fixed;width:1px;height:1px;opacity:0;pointer-events:none;left:-10px;top:-10px;">
+<div data-screen-label="Apartment 3D" style="position:fixed;inset:0;background:#1a1714;">
+  <canvas ref="{{ canvasRef }}" tabindex="0" role="img" aria-label="Shruti's apartment in 3D. Use the controls and the Go to menu to move around." style="position:absolute;inset:0;width:100%;height:100%;display:block;touch-action:none;"></canvas>
+</div>
+
+<div aria-label="Places in the room" style="position:fixed;inset:0;z-index:40;pointer-events:none;">
+  <sc-for list="{{ spotLabels }}" as="sl" hint-placeholder-count="8">
+    <button type="button" data-spot="{{ sl.id }}" onClick="{{ sl.go }}" aria-label="{{ sl.label }}" title="{{ sl.label }}" style="position:absolute;left:0;top:0;width:30px;height:30px;padding:0;border:0;background:transparent;opacity:0;pointer-events:none;cursor:pointer;transition:opacity 0.25s ease;">
+      <span aria-hidden="true" style="position:absolute;inset:0;border-radius:50%;background:rgba(243,238,228,0.7);animation:spotPulse 2.2s ease-out infinite;"></span>
+      <span aria-hidden="true" style="position:absolute;left:9px;top:9px;width:12px;height:12px;border-radius:50%;background:#F3EEE4;box-shadow:0 0 0 2px #3F746E, 0 2px 6px rgba(0,0,0,0.45);"></span>
+    </button>
+  </sc-for>
+</div>
+
+<sc-if value="{{ loading }}" hint-placeholder-val="{{ true }}">
+  <div style="position:fixed;inset:0;z-index:90;display:flex;align-items:center;justify-content:center;background:#1a1714;color:#f5ecdc;">
+    <div style="display:flex;flex-direction:column;align-items:center;gap:14px;">
+      <span style="font-family:'Bricolage Grotesque',sans-serif;font-size:28px;font-weight:500;letter-spacing:-0.02em;">Arriving at Shruti’s…</span>
+      <span style="font-family:'Inter',sans-serif;font-size:13px;color:#bdb5a8;">Building the apartment</span>
+    </div>
+  </div>
+</sc-if>
+
+<header style="position:fixed;top:0;left:0;right:0;z-index:60;height:0;">
+  <sc-if value="{{ notPhone }}" hint-placeholder-val="{{ true }}">
+  <button type="button" onClick="{{ navWork }}" aria-label="Shruti Tomar — see the work" style="position:absolute;left:clamp(12px,2vw,28px);top:16px;padding:9px 16px;border:0;border-radius:999px;background:rgba(243,238,228,0.94);color:#171717;font-family:'Bricolage Grotesque',sans-serif;font-weight:500;font-size:18px;line-height:1;letter-spacing:-0.01em;cursor:pointer;box-shadow:0 0 0 1px rgba(80,60,40,0.18), 0 8px 18px -10px rgba(0,0,0,0.5);" style-hover="background:#e6dccb;">Shruti Tomar</button>
+  </sc-if>
+  <sc-if value="{{ phone }}" hint-placeholder-val="{{ false }}">
+  <button type="button" onClick="{{ navWork }}" aria-label="Shruti Tomar — see the work" style="position:absolute;left:12px;top:16px;width:40px;height:40px;border:0;border-radius:50%;background:rgba(243,238,228,0.94);color:#171717;display:flex;align-items:center;justify-content:center;font-family:'Bricolage Grotesque',sans-serif;font-weight:600;font-size:15px;cursor:pointer;box-shadow:0 0 0 1px rgba(80,60,40,0.18), 0 8px 18px -10px rgba(0,0,0,0.5);">ST</button>
+  </sc-if>
+  <sc-if value="{{ notCompact }}" hint-placeholder-val="{{ true }}">
+  <div style="position:absolute;right:{{ navRight }};top:16px;display:flex;gap:8px;align-items:center;">
+    <nav aria-label="Primary" style="display:flex;gap:2px;padding:4px;border-radius:999px;background:rgba(243,238,228,0.94);box-shadow:0 0 0 1px rgba(80,60,40,0.18), 0 8px 18px -10px rgba(0,0,0,0.5);">
+      <button type="button" onClick="{{ navWork }}" style="padding:7px 13px;border:0;border-radius:999px;background:transparent;font-family:'Inter',sans-serif;font-size:14px;font-weight:500;color:#171717;cursor:pointer;" style-hover="background:#e6dccb;">Work</button>
+      <button type="button" onClick="{{ navAbout }}" style="padding:7px 13px;border:0;border-radius:999px;background:transparent;font-family:'Inter',sans-serif;font-size:14px;font-weight:500;color:#171717;cursor:pointer;" style-hover="background:#e6dccb;">About</button>
+      <button type="button" onClick="{{ navContact }}" style="padding:7px 13px;border:0;border-radius:999px;background:transparent;font-family:'Inter',sans-serif;font-size:14px;font-weight:500;color:#171717;cursor:pointer;" style-hover="background:#e6dccb;">Contact</button>
+    </nav>
+    <button type="button" onClick="{{ restart }}" aria-label="Restart from the front door" style="width:38px;height:38px;border:0;border-radius:50%;background:rgba(243,238,228,0.94);color:#171717;font-size:16px;cursor:pointer;box-shadow:0 0 0 1px rgba(80,60,40,0.18), 0 8px 18px -10px rgba(0,0,0,0.5);">↺</button>
+  </div>
+  </sc-if>
+  <sc-if value="{{ compact }}" hint-placeholder-val="{{ false }}">
+  <div style="position:absolute;right:{{ navRight }};top:16px;display:flex;flex-direction:column;align-items:flex-end;gap:8px;">
+    <button type="button" onClick="{{ toggleMenu }}" aria-expanded="{{ menuExpanded }}" aria-haspopup="menu" style="display:flex;align-items:center;gap:8px;height:40px;padding:0 16px;border:0;border-radius:999px;background:rgba(243,238,228,0.94);color:#171717;font-family:'Inter',sans-serif;font-size:14px;font-weight:500;cursor:pointer;box-shadow:0 0 0 1px rgba(80,60,40,0.18), 0 8px 18px -10px rgba(0,0,0,0.5);">{{ menuIcon }} Menu</button>
+    <sc-if value="{{ menuOpen }}" hint-placeholder-val="{{ false }}">
+      <div role="menu" aria-label="Menu" style="display:flex;flex-direction:column;gap:2px;width:min(240px,calc(100vw - 24px));padding:6px;border-radius:16px;background:rgba(243,238,228,0.98);box-shadow:0 0 0 1px rgba(80,60,40,0.16), 0 18px 36px -18px rgba(0,0,0,0.6);">
+        <sc-for list="{{ menuItems }}" as="mi" hint-placeholder-count="6">
+          <button type="button" role="menuitem" onClick="{{ mi.go }}" style="display:flex;justify-content:space-between;align-items:center;gap:12px;min-height:46px;padding:0 14px;border:0;border-radius:10px;background:transparent;color:#171717;font-family:'Inter',sans-serif;font-size:15px;font-weight:500;text-align:left;cursor:pointer;" style-hover="background:#e6dccb;"><span>{{ mi.label }}</span><span style="color:#5e5244;font-size:13px;">{{ mi.hint }}</span></button>
+        </sc-for>
+      </div>
+    </sc-if>
+  </div>
+  </sc-if>
+  <a href="{{ resumeUrl }}" target="_blank" rel="noopener" aria-label="Resume (opens in a new tab)" style="position:absolute;top:0;right:{{ ribbonRight }};width:{{ ribbonW }};height:{{ ribbonH }};background:#171717;clip-path:polygon(0 0,100% 0,100% 100%,50% 78%,0 100%);display:flex;justify-content:center;padding-top:{{ ribbonPad }};box-sizing:border-box;color:#F3EEE4;text-decoration:none;font-family:'Inter',sans-serif;font-size:{{ ribbonFs }};font-weight:500;letter-spacing:0.04em;transition:height 0.25s ease;" style-hover="color:#F3EEE4;height:{{ ribbonHover }};">RESUME</a>
+</header>
+
+<sc-if value="{{ atGate }}" hint-placeholder-val="{{ false }}">
+  <div style="position:fixed;left:50%;bottom:{{ promptBottom }};transform:translateX(-50%);z-index:50;display:flex;align-items:center;gap:10px;padding:6px 14px 6px 6px;border-radius:999px;background:rgba(26,23,20,0.78);color:#f5ecdc;box-shadow:0 14px 30px -16px rgba(0,0,0,0.7);">
+    <button type="button" onClick="{{ ring }}" style="display:flex;align-items:center;gap:8px;padding:9px 14px;border:0;border-radius:999px;background:#F3EEE4;color:#171717;font-family:'Inter',sans-serif;font-size:14px;font-weight:500;cursor:pointer;" style-hover="background:#ffffff;"><span aria-hidden="true" style="display:inline-flex;width:16px;height:16px;border-radius:50%;background:#D4AF37;"></span>Ring the bell</button>
+    <span style="font-family:'Inter',sans-serif;font-size:12px;color:#e4ddd0;">or press Enter</span>
+  </div>
+</sc-if>
+
+<sc-if value="{{ hasDialog }}" hint-placeholder-val="{{ false }}">
+  <div role="status" style="position:fixed;left:50%;top:76px;transform:translateX(-50%);z-index:50;width:max-content;max-width:calc(100vw - 32px);display:flex;align-items:flex-start;gap:12px;padding:14px 18px;border-radius:16px;background:rgba(243,238,228,0.96);box-shadow:0 0 0 1px rgba(80,60,40,0.14), 0 18px 36px -18px rgba(0,0,0,0.6);">
+    <span aria-hidden="true" style="flex:none;width:34px;height:34px;border-radius:50%;background:#171717;color:#FFFFFF;display:flex;align-items:center;justify-content:center;font-family:'Bricolage Grotesque',sans-serif;font-weight:600;font-size:15px;box-shadow:inset 0 0 0 1px rgba(0,0,0,0.12);">S</span>
+    <div style="display:flex;flex-direction:column;gap:3px;">
+      <span style="font-family:'Bricolage Grotesque',sans-serif;font-size:19px;line-height:1.25;color:#171717;">{{ dialog }}</span>
+      <sc-if value="{{ hasDialogSub }}" hint-placeholder-val="{{ false }}"><span style="max-width:380px;font-family:'Inter',sans-serif;font-size:14px;line-height:1.45;color:#3d342c;text-wrap:pretty;">{{ dialogSub }}</span></sc-if>
+    </div>
+    <sc-if value="{{ hasDialogSub }}" hint-placeholder-val="{{ false }}"><button type="button" onClick="{{ closeDialog }}" aria-label="Dismiss" style="flex:none;width:28px;height:28px;margin:-2px -4px 0 4px;border:0;border-radius:50%;background:transparent;color:#5e5244;font-size:16px;line-height:1;cursor:pointer;" style-hover="background:#e6dccb;">×</button></sc-if>
+  </div>
+</sc-if>
+
+<sc-if value="{{ inShelf }}" hint-placeholder-val="{{ false }}">
+  <div style="position:fixed;left:clamp(12px,2vw,28px);top:72px;z-index:50;display:flex;align-items:center;gap:10px;max-width:calc(100vw - 24px);padding:6px 6px 6px 16px;border-radius:999px;background:rgba(26,23,20,0.82);color:#f5ecdc;">
+    <span style="font-family:'Inter',sans-serif;font-size:13px;">{{ shelfHint }}</span>
+    <button type="button" onClick="{{ leaveShelf }}" style="padding:8px 14px;border:0;border-radius:999px;background:#F3EEE4;color:#171717;font-family:'Inter',sans-serif;font-size:13px;font-weight:500;cursor:pointer;white-space:nowrap;">Step back · Esc</button>
+  </div>
+</sc-if>
+<div role="region" aria-label="Music player" style="position:fixed;right:clamp(12px,2vw,24px);top:136px;z-index:50;width:min(340px,calc(100vw - 24px));max-height:calc(100vh - 160px);overflow-y:auto;box-sizing:border-box;display:{{ musicDisplay }};flex-direction:column;gap:10px;padding:14px;border-radius:16px;background:rgba(26,23,20,0.88);color:#f5ecdc;box-shadow:0 18px 36px -18px rgba(0,0,0,0.7);">
+    <div style="display:flex;align-items:center;gap:12px;">
+      <span aria-hidden="true" style="flex:none;width:44px;height:44px;border-radius:6px;background:{{ musicSwatch }};"></span>
+      <div style="display:flex;flex-direction:column;gap:2px;min-width:0;">
+        <span style="font-family:'Bricolage Grotesque',sans-serif;font-size:16px;font-weight:500;line-height:1.15;">{{ musicTitle }}</span>
+        <span style="font-family:'Inter',sans-serif;font-size:12px;color:#cfc8bd;">{{ musicArtist }}</span>
+      </div>
+    </div>
+    <div style="display:flex;align-items:center;justify-content:space-between;gap:8px;">
+      <span style="display:flex;align-items:center;gap:6px;font-family:'Inter',sans-serif;font-size:12px;font-weight:600;letter-spacing:0.08em;text-transform:uppercase;color:{{ musicStateInk }};"><span style="width:8px;height:8px;border-radius:50%;background:{{ musicStateInk }};"></span>{{ musicStateLabel }}</span>
+      <div style="display:flex;gap:4px;">
+        <sc-if value="{{ musicCanToggle }}" hint-placeholder-val="{{ false }}"><button type="button" onClick="{{ musicToggle }}" style="padding:7px 12px;border:0;border-radius:999px;background:#F3EEE4;color:#171717;font-family:'Inter',sans-serif;font-size:12px;font-weight:600;cursor:pointer;">{{ musicToggleLabel }}</button></sc-if>
+        <button type="button" onClick="{{ musicStop }}" style="padding:7px 12px;border:1px solid rgba(245,236,220,0.35);border-radius:999px;background:transparent;color:#f5ecdc;font-family:'Inter',sans-serif;font-size:12px;font-weight:500;cursor:pointer;">Stop</button>
+      </div>
+    </div>
+    <div ref="{{ spotifyRef }}" style="display:{{ spotifyDisplay }};width:100%;height:80px;border-radius:12px;overflow:hidden;background:#282828;"></div>
+    <sc-if value="{{ musicHasLink }}" hint-placeholder-val="{{ false }}"><a href="{{ musicLink }}" target="_blank" rel="noopener" style="align-self:flex-start;font-family:'Inter',sans-serif;font-size:12px;font-weight:500;color:#7fe0a8;text-decoration:none;" style-hover="text-decoration:underline;">Open in Spotify ↗</a></sc-if>
+    <sc-if value="{{ musicHasNote }}" hint-placeholder-val="{{ false }}"><span style="font-family:'Inter',sans-serif;font-size:12px;line-height:1.4;color:#e4ddd0;">{{ musicNote }}</span></sc-if>
+  </div>
+<div ref="{{ tipRef }}" aria-hidden="true" style="position:fixed;left:0;top:0;z-index:55;pointer-events:none;opacity:0;padding:6px 10px;border-radius:8px;background:rgba(26,23,20,0.9);color:#f5ecdc;font-family:'Inter',sans-serif;font-size:12px;white-space:nowrap;transition:opacity 0.15s ease;"></div>
+<sc-if value="{{ needFocus }}" hint-placeholder-val="{{ false }}">
+  <button type="button" onClick="{{ grabFocus }}" style="position:fixed;left:50%;top:50%;transform:translate(-50%,-50%);z-index:52;display:flex;align-items:center;gap:10px;padding:14px 22px;border:0;border-radius:999px;background:rgba(26,23,20,0.88);color:#f5ecdc;font-family:'Inter',sans-serif;font-size:15px;font-weight:500;cursor:pointer;box-shadow:0 18px 36px -16px rgba(0,0,0,0.7);">Click here to walk with your keyboard</button>
+</sc-if>
+<sc-if value="{{ hasToast }}" hint-placeholder-val="{{ false }}">
+  <div role="status" style="position:fixed;left:50%;bottom:calc({{ promptBottom }} + 70px);transform:translateX(-50%);z-index:50;max-width:calc(100vw - 32px);padding:12px 18px;border-radius:14px;background:rgba(243,238,228,0.96);font-family:'Caveat',cursive;font-size:26px;line-height:1.1;color:#2b2621;box-shadow:0 18px 36px -18px rgba(0,0,0,0.6);">{{ toast }}</div>
+</sc-if>
+
+<sc-if value="{{ hasPrompt }}" hint-placeholder-val="{{ false }}">
+  <button type="button" onClick="{{ doPrompt }}" style="position:fixed;left:50%;bottom:{{ promptBottom }};transform:translateX(-50%);z-index:50;display:flex;align-items:center;gap:12px;padding:14px 22px;border:0;border-radius:999px;background:rgba(26,23,20,0.86);color:#f5ecdc;text-align:left;cursor:pointer;box-shadow:0 14px 30px -14px rgba(0,0,0,0.7);" style-hover="background:rgba(26,23,20,0.95);">
+    <span aria-hidden="true" style="flex:none;width:34px;height:34px;border-radius:9px;background:#F3EEE4;color:#171717;display:flex;align-items:center;justify-content:center;font-family:'Inter',sans-serif;font-weight:600;font-size:15px;box-shadow:inset 0 -3px 0 #cfc2ab;">{{ promptKey }}</span>
+    <span style="display:flex;flex-direction:column;gap:2px;">
+      <span style="font-family:'Inter',sans-serif;font-size:15px;font-weight:500;">{{ promptTitle }}</span>
+      <sc-if value="{{ hasPromptSub }}" hint-placeholder-val="{{ false }}"><span style="font-family:'Inter',sans-serif;font-size:12px;color:#cfc8bd;">{{ promptSub }}</span></sc-if>
+    </span>
+  </button>
+</sc-if>
+
+<sc-if value="{{ seated }}" hint-placeholder-val="{{ false }}">
+  <div style="position:fixed;left:50%;top:76px;transform:translateX(-50%);z-index:50;display:flex;align-items:center;gap:10px;max-width:calc(100vw - 24px);padding:6px 6px 6px 16px;border-radius:999px;background:rgba(26,23,20,0.82);color:#f5ecdc;">
+    <span style="font-family:'Inter',sans-serif;font-size:13px;">{{ tvHint }}</span>
+    <button type="button" onClick="{{ tvOff }}" style="padding:8px 14px;border:0;border-radius:999px;background:#F3EEE4;color:#171717;font-family:'Inter',sans-serif;font-size:13px;font-weight:500;cursor:pointer;white-space:nowrap;" style-hover="background:#ffffff;">Turn off TV</button>
+  </div>
+</sc-if>
+
+<div ref="{{ tvRef }}" role="region" aria-label="TV" style="position:fixed;left:0;top:0;width:0;height:0;z-index:45;overflow:hidden;box-sizing:border-box;background:#100e0c;color:#f5ecdc;opacity:{{ tvOp }};pointer-events:{{ tvPe }};transition:opacity 0.35s ease;font-size:16px;">
+  <div ref="{{ ytHostRef }}" style="position:absolute;inset:0;display:{{ ytDisplay }};background:#000;"></div>
+  <sc-if value="{{ tvMenu }}" hint-placeholder-val="{{ false }}">
+    <div style="position:absolute;inset:0;display:flex;flex-direction:column;justify-content:center;gap:1.1em;padding:5% 5.5%;box-sizing:border-box;">
+      <div style="display:flex;flex-direction:column;gap:0.25em;">
+        <span style="font-family:'Bricolage Grotesque',sans-serif;font-size:1.6em;font-weight:500;line-height:1.1;color:#f5ecdc;">A few shows I keep coming back to</span>
+      </div>
+      <div style="display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:0.9em;">
+        <sc-for list="{{ tvShows }}" as="v" hint-placeholder-count="3">
+          <button type="button" onClick="{{ v.pick }}" disabled="{{ v.disabled }}" aria-label="{{ v.aria }}" style="display:flex;flex-direction:column;gap:0.55em;padding:0.45em;border:0.12em solid {{ v.ring }};border-radius:0.7em;background:#1c1915;color:#f5ecdc;text-align:left;cursor:{{ v.cursor }};font:inherit;" style-hover="background:#28231d;">
+            <div style="position:relative;width:100%;aspect-ratio:16 / 9;border-radius:0.45em;overflow:hidden;background:#2b2621;display:flex;align-items:center;justify-content:center;">
+              <div aria-hidden="true" style="position:absolute;inset:0;background-image:{{ v.thumbCss }};background-size:cover;background-position:center;"></div>
+              <span aria-hidden="true" style="position:relative;width:2.2em;height:2.2em;border-radius:50%;background:rgba(16,14,12,0.72);display:flex;align-items:center;justify-content:center;font-size:0.8em;color:#ffffff;">▶</span>
+            </div>
+            <span style="padding:0 0.25em;font-family:'Bricolage Grotesque',sans-serif;font-size:0.92em;font-weight:500;line-height:1.2;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden;">{{ v.title }}</span>
+            <span style="padding:0 0.25em 0.2em;font-family:'Inter',sans-serif;font-size:0.68em;color:#bdb5a8;">{{ v.cta }}</span>
+          </button>
+        </sc-for>
+      </div>
+    </div>
+  </sc-if>
+  <sc-if value="{{ tvWatching }}" hint-placeholder-val="{{ false }}">
+    <button type="button" onClick="{{ tvBack }}" style="position:absolute;left:0.6em;top:0.6em;z-index:2;padding:0.35em 0.8em;border:0;border-radius:999px;background:rgba(16,14,12,0.78);color:#f5ecdc;font-family:'Inter',sans-serif;font-size:0.68em;font-weight:500;cursor:pointer;">← Shows</button>
+  </sc-if>
+  <sc-if value="{{ tvHasNote }}" hint-placeholder-val="{{ false }}">
+    <div style="position:absolute;left:50%;bottom:1em;transform:translateX(-50%);z-index:2;display:flex;align-items:center;gap:0.7em;max-width:90%;padding:0.5em 0.9em;border-radius:0.7em;background:rgba(16,14,12,0.88);font-family:'Inter',sans-serif;font-size:0.72em;line-height:1.35;color:#f5ecdc;">
+      <span>{{ tvNote }}</span>
+      <sc-if value="{{ tvHasLink }}" hint-placeholder-val="{{ false }}"><a href="{{ tvLink }}" target="_blank" rel="noopener" style="flex:none;color:#d9a43b;text-decoration:none;font-weight:600;" style-hover="text-decoration:underline;color:#d9a43b;">Open on YouTube ↗</a></sc-if>
+      <sc-if value="{{ tvCanRetry }}" hint-placeholder-val="{{ false }}"><button type="button" onClick="{{ tvRetry }}" style="flex:none;padding:0.3em 0.7em;border:0;border-radius:999px;background:#F3EEE4;color:#171717;font:inherit;font-weight:600;cursor:pointer;">Retry</button></sc-if>
+    </div>
+  </sc-if>
+</div>
+
+<div ref="{{ deskRef }}" role="region" aria-label="Shruti's computer: projects" style="position:fixed;left:0;top:0;width:100vw;height:100vh;z-index:62;overflow:hidden;box-sizing:border-box;background:#F4EFE6;opacity:0;pointer-events:none;font-size:16px;will-change:transform,opacity;">
+  <div onWheel="{{ deskWheel }}" onTouchStart="{{ deskTouchStart }}" onTouchMove="{{ deskTouchMove }}" onTouchEnd="{{ deskTouchEnd }}" style="position:absolute;inset:0;overflow:hidden;overscroll-behavior:contain;touch-action:none;">
+    <div style="position:absolute;top:0;left:0;right:0;z-index:2;display:flex;justify-content:flex-end;height:3.6em;box-sizing:border-box;padding:1.2em 1.6em 0;">
+      <button type="button" onClick="{{ leaveDesk }}" style="padding:0.55em 1.1em;border:0;border-radius:999px;background:#171717;color:#F4EFE6;font-family:'Inter',sans-serif;font-weight:500;font-size:0.78em;letter-spacing:0;line-height:1.2;cursor:pointer;" style-hover="background:#2b2621;" style-focus="outline:2px solid #3F746E;outline-offset:2px;">Back to apartment · Esc</button>
+    </div>
+    <div ref="{{ drumRef }}" onMouseMove="{{ drumMove }}" onMouseLeave="{{ drumLeave }}" role="group" aria-roledescription="carousel" aria-label="Projects. Scroll to browse, click a card to open its case study." style="position:absolute;inset:0;overflow:hidden;">
+      <canvas ref="{{ carRef }}" aria-hidden="true" style="position:absolute;left:0;top:0;width:100%;height:100%;display:block;pointer-events:none;"></canvas>
+      <sc-for list="{{ slots }}" as="c" hint-placeholder-count="4">
+        <button type="button" data-card="1" onClick="{{ c.click }}" onMouseEnter="{{ c.enter }}" onMouseLeave="{{ c.leave }}" onFocus="{{ c.enter }}" onBlur="{{ c.leave }}" aria-label="{{ c.aria }}" style="position:absolute;left:0;top:0;width:0;height:0;padding:0;border:0;background:transparent;cursor:pointer;border-radius:6px;" style-focus="outline:2px solid #3F746E;outline-offset:6px;"></button>
+        <div data-title="1" aria-hidden="true" style="display:none;">
+          <span data-t="1" style="position:absolute;left:0;top:0;font-family:'Bricolage Grotesque',sans-serif;font-weight:500;letter-spacing:-0.02em;line-height:1;color:#171717;">{{ c.title }}</span>
+          <span data-d="1" style="position:absolute;left:0;top:0;font-family:'Inter',sans-serif;font-weight:400;line-height:1;color:#5e5244;">{{ c.desc }}</span>
+        </div>
+        <span data-year="1" aria-hidden="true" style="display:none;font-family:'Inter',sans-serif;font-weight:500;line-height:1;color:#5e5244;">{{ c.year }}</span>
+      </sc-for>
+      <div ref="{{ vpRef }}" aria-hidden="true" style="position:absolute;left:0;top:0;z-index:5;pointer-events:none;opacity:0;padding:0.7em 1.25em;border-radius:999px;background:#F4EFE6;color:#171717;font-family:'Inter',sans-serif;font-weight:500;font-size:0.82em;letter-spacing:0;line-height:1;white-space:nowrap;box-shadow:0 8px 24px -10px rgba(0,0,0,0.35);transition:opacity 0.18s ease, background-color 0.2s ease, color 0.2s ease;will-change:transform;">View project</div>
+    </div>
+    <div aria-hidden="true" data-hint="1" style="position:absolute;left:50%;bottom:1.6em;transform:translateX(-50%);">
+      <span style="display:block;font-family:'Inter',sans-serif;font-weight:400;font-size:0.8em;letter-spacing:0;line-height:1;color:#5e5244;">Scroll</span>
+    </div>
+  </div>
+</div>
+
+
+<div style="position:fixed;left:clamp(12px,2vw,24px);bottom:calc({{ timeBottom }} + env(safe-area-inset-bottom));z-index:50;display:flex;flex-direction:column;gap:22px;align-items:flex-start;">
+  <sc-if value="{{ showPad }}" hint-placeholder-val="{{ false }}">
+    <div aria-label="Movement pad" style="display:grid;grid-template-columns:repeat(3,{{ padSize }});grid-template-rows:repeat(2,{{ padSize }});gap:6px;">
+      <button type="button" aria-label="Turn left" onPointerDown="{{ padTL }}" onPointerUp="{{ padStop }}" onPointerLeave="{{ padStop }}" onPointerCancel="{{ padStop }}" style="border:0;border-radius:12px;background:rgba(243,238,228,0.9);color:#171717;font-size:18px;touch-action:none;cursor:pointer;">↺</button>
+      <button type="button" aria-label="Walk forward" onPointerDown="{{ padF }}" onPointerUp="{{ padStop }}" onPointerLeave="{{ padStop }}" onPointerCancel="{{ padStop }}" style="border:0;border-radius:12px;background:rgba(243,238,228,0.9);color:#171717;font-size:18px;touch-action:none;">▲</button>
+      <button type="button" aria-label="Turn right" onPointerDown="{{ padTR }}" onPointerUp="{{ padStop }}" onPointerLeave="{{ padStop }}" onPointerCancel="{{ padStop }}" style="border:0;border-radius:12px;background:rgba(243,238,228,0.9);color:#171717;font-size:18px;touch-action:none;cursor:pointer;">↻</button>
+      <button type="button" aria-label="Step left" onPointerDown="{{ padL }}" onPointerUp="{{ padStop }}" onPointerLeave="{{ padStop }}" onPointerCancel="{{ padStop }}" style="border:0;border-radius:12px;background:rgba(243,238,228,0.9);color:#171717;font-size:18px;touch-action:none;">◀</button>
+      <button type="button" aria-label="Walk back" onPointerDown="{{ padB }}" onPointerUp="{{ padStop }}" onPointerLeave="{{ padStop }}" onPointerCancel="{{ padStop }}" style="border:0;border-radius:12px;background:rgba(243,238,228,0.9);color:#171717;font-size:18px;touch-action:none;">▼</button>
+      <button type="button" aria-label="Step right" onPointerDown="{{ padR }}" onPointerUp="{{ padStop }}" onPointerLeave="{{ padStop }}" onPointerCancel="{{ padStop }}" style="border:0;border-radius:12px;background:rgba(243,238,228,0.9);color:#171717;font-size:18px;touch-action:none;">▶</button>
+    </div>
+  </sc-if>
+  <sc-if value="{{ timeOpenPhone }}" hint-placeholder-val="{{ false }}">
+  <div role="radiogroup" aria-label="Time of day and weather" style="display:flex;flex-direction:column;gap:2px;padding:6px;border-radius:16px;background:rgba(26,23,20,0.9);">
+    <sc-for list="{{ times }}" as="w" hint-placeholder-count="5">
+      <button type="button" role="radio" aria-checked="{{ w.checked }}" onClick="{{ w.pickClose }}" style="min-height:42px;padding:0 16px;border:0;border-radius:10px;background:{{ w.bg }};color:{{ w.ink }};font-family:'Inter',sans-serif;font-size:14px;font-weight:500;text-align:left;cursor:pointer;">{{ w.label }}</button>
+    </sc-for>
+  </div>
+  </sc-if>
+  <sc-if value="{{ phone }}" hint-placeholder-val="{{ false }}">
+  <button type="button" onClick="{{ toggleTime }}" aria-expanded="{{ timeExpanded }}" aria-label="Time of day: {{ timeName }}. Change" style="height:42px;padding:0 16px;border:0;border-radius:999px;background:rgba(26,23,20,0.82);color:#f5ecdc;font-family:'Inter',sans-serif;font-size:14px;font-weight:500;cursor:pointer;">{{ timeName }} ▴</button>
+  </sc-if>
+  <sc-if value="{{ notPhone }}" hint-placeholder-val="{{ true }}">
+  <div role="radiogroup" aria-label="Time of day and weather" style="display:flex;gap:2px;padding:6px 10px;border-radius:999px;background:rgba(26,23,20,0.78);">
+    <sc-for list="{{ times }}" as="w" hint-placeholder-count="5">
+      <button type="button" role="radio" aria-checked="{{ w.checked }}" onClick="{{ w.pick }}" style="padding:7px 13px;border:0;border-radius:999px;background:{{ w.bg }};color:{{ w.ink }};font-family:'Inter',sans-serif;font-size:14px;font-weight:500;line-height:1;cursor:pointer;transition:background 0.25s ease;">{{ w.label }}</button>
+    </sc-for>
+  </div>
+  </sc-if>
+</div>
+
+<div style="position:fixed;right:clamp(12px,2vw,24px);bottom:calc({{ timeBottom }} + env(safe-area-inset-bottom));z-index:50;display:flex;flex-direction:column;align-items:flex-end;gap:8px;">
+  <sc-if value="{{ goOpen }}" hint-placeholder-val="{{ false }}">
+    <div role="menu" aria-label="Go to" style="display:flex;flex-direction:column;gap:2px;min-width:210px;padding:6px;border-radius:14px;background:rgba(243,238,228,0.97);box-shadow:0 0 0 1px rgba(80,60,40,0.16), 0 18px 36px -18px rgba(0,0,0,0.6);">
+      <sc-for list="{{ goItems }}" as="g" hint-placeholder-count="6">
+        <button type="button" role="menuitem" onClick="{{ g.go }}" style="display:flex;justify-content:space-between;gap:16px;padding:10px 12px;border:0;border-radius:9px;background:transparent;color:#171717;font-family:'Inter',sans-serif;font-size:14px;text-align:left;cursor:pointer;" style-hover="background:#e6dccb;"><span>{{ g.label }}</span><span style="color:#5e5244;font-size:12px;">{{ g.hint }}</span></button>
+      </sc-for>
+    </div>
+  </sc-if>
+  <div style="display:flex;gap:8px;">
+    <button type="button" onClick="{{ toggleHelp }}" aria-label="Show controls" aria-expanded="{{ helpExpanded }}" style="width:40px;height:40px;border:0;border-radius:50%;background:rgba(26,23,20,0.78);color:#f5ecdc;font-family:'Inter',sans-serif;font-size:16px;font-weight:600;cursor:pointer;">?</button>
+    <button type="button" onClick="{{ toggleGo }}" aria-expanded="{{ goExpanded }}" aria-haspopup="menu" style="padding:0 16px;height:40px;border:0;border-radius:999px;background:rgba(26,23,20,0.78);color:#f5ecdc;font-family:'Inter',sans-serif;font-size:14px;font-weight:500;cursor:pointer;">Go to ▴</button>
+  </div>
+</div>
+
+<sc-if value="{{ showHelp }}" hint-placeholder-val="{{ false }}">
+  <div role="dialog" aria-label="Controls" style="position:fixed;right:clamp(12px,2vw,24px);bottom:calc({{ timeBottom }} + 52px);z-index:55;width:min(320px,calc(100vw - 24px));box-sizing:border-box;padding:18px;border-radius:16px;background:rgba(243,238,228,0.97);box-shadow:0 0 0 1px rgba(80,60,40,0.16), 0 18px 36px -18px rgba(0,0,0,0.6);display:flex;flex-direction:column;gap:12px;">
+    <div style="font-family:'Bricolage Grotesque',sans-serif;font-size:19px;font-weight:500;color:#171717;">Make yourself at home</div>
+    <div style="display:grid;grid-template-columns:auto 1fr;gap:8px 14px;font-family:'Inter',sans-serif;font-size:13px;color:#2b2621;align-items:center;">
+      <span style="font-weight:600;">W / ↑  S / ↓</span><span>Walk forward / back</span>
+      <span style="font-weight:600;">← →</span><span>Turn left / right</span>
+      <span style="font-weight:600;">A D</span><span>Step sideways</span>
+      <span style="font-weight:600;">Drag</span><span>Look around</span>
+      <span style="font-weight:600;">E / Enter</span><span>Use what's in front of you</span>
+      <span style="font-weight:600;">Click floor</span><span>Walk to that spot</span>
+      <span style="font-weight:600;">Click label</span><span>Walk to an object</span>
+      <span style="font-weight:600;">Esc</span><span>Stand up or close</span>
+    </div>
+    <p style="margin:0;font-family:'Inter',sans-serif;font-size:12px;line-height:1.45;color:#5e5244;">Prefer not to walk? Use “Go to” from the menu.</p>
+    <button type="button" onClick="{{ closeHelp }}" style="align-self:flex-start;padding:9px 16px;border:0;border-radius:999px;background:#171717;color:#ffffff;font-family:'Inter',sans-serif;font-size:13px;font-weight:500;cursor:pointer;">Got it</button>
+  </div>
+</sc-if>
+
+<sc-if value="{{ ovAbout }}" hint-placeholder-val="{{ false }}">
+  <div role="dialog" aria-modal="true" aria-labelledby="about-title" data-screen-label="About" onClick="{{ closeOverlayBg }}" style="position:fixed;inset:0;z-index:70;display:flex;align-items:center;justify-content:center;padding:16px;box-sizing:border-box;background:rgba(15,12,10,0.55);">
+    <div data-panel="1" style="width:min(940px,100%);max-height:calc(100vh - 32px);overflow:auto;box-sizing:border-box;padding:clamp(20px,3vw,40px);border-radius:22px;background:#F3EEE4;display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,320px),1fr));gap:28px;box-shadow:0 30px 60px -30px rgba(0,0,0,0.7);">
+      <div style="display:flex;flex-direction:column;gap:14px;min-width:0;">
+        <div style="padding:10px;border-radius:6px;background:linear-gradient(160deg,#7a5a40,#4f3624);">
+          <div style="padding:8px;background:#fbf6ee;">
+            <div style="position:relative;aspect-ratio:825 / 583;background:#efe3d6;overflow:hidden;">
+              <div style="position:absolute;inset:0;"><img src="./assets/shruti-photo-v2.webp" alt="Photo of Shruti" style="width:100%;height:100%;object-fit:cover;display:block;"></div>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div style="display:flex;flex-direction:column;gap:14px;min-width:0;">
+        <div style="display:flex;justify-content:space-between;align-items:center;gap:12px;">
+          <span style="font-family:'Caveat',cursive;font-size:24px;color:#171717;">{{ aboutKicker }}</span>
+          <button type="button" data-close="1" onClick="{{ closeOverlay }}" aria-label="Close" style="flex:none;width:38px;height:38px;border:1px solid #d6ccbb;border-radius:50%;background:transparent;font-size:16px;cursor:pointer;">✕</button>
+        </div>
+        <h2 id="about-title" style="margin:0;font-family:'Bricolage Grotesque',sans-serif;font-weight:500;font-size:clamp(32px,3.4vw,48px);letter-spacing:-0.03em;line-height:1;color:#171717;">Hi, I am <span style="color:#171717;">Shruti</span>.</h2>
+        <p style="margin:0;font-family:'Inter',sans-serif;font-size:15px;line-height:1.6;color:#2b2621;text-wrap:pretty;">I was that person who’d open an app and find myself wondering, “How did they make this work so effortlessly?” I wanted to understand what went on behind the screens, so I started exploring frontend development. But somewhere along the way, I realised I was more drawn to designing the experience than writing the code.</p>
+        <p style="margin:0;font-family:'Inter',sans-serif;font-size:15px;line-height:1.6;color:#2b2621;text-wrap:pretty;">I followed that curiosity into product design, learning through experimentation, putting my work out there, and figuring things out one project at a time.</p>
+        <p style="margin:0;font-family:'Inter',sans-serif;font-size:15px;line-height:1.6;color:#2b2621;text-wrap:pretty;">I love experimenting, and lately, I’ve been designing immersive digital experiences for the real estate and built-environment industries at PropVR.</p>
+        <p style="margin:0;font-family:'Inter',sans-serif;font-style:normal;font-size:15px;line-height:1.5;color:#171717;text-wrap:pretty;">The things that make me, me are on the shelf, and around&nbsp;it.</p>
+      </div>
+    </div>
+  </div>
+</sc-if>
+
+<sc-if value="{{ ovContact }}" hint-placeholder-val="{{ false }}">
+  <div role="dialog" aria-modal="true" aria-labelledby="contact-title" data-screen-label="Contact" onClick="{{ closeOverlayBg }}" style="position:fixed;inset:0;z-index:70;display:flex;align-items:center;justify-content:center;padding:16px;box-sizing:border-box;background:rgba(15,12,10,0.55);">
+    <div data-panel="1" style="position:relative;width:min(720px,100%);max-height:calc(100vh - 32px);overflow:auto;box-sizing:border-box;padding:clamp(24px,4vw,48px);border-radius:22px;background:#000000;color:#f5f0e8;display:flex;flex-direction:column;gap:22px;box-shadow:0 30px 60px -30px rgba(0,0,0,0.7);">
+      <button type="button" data-close="1" onClick="{{ closeOverlay }}" aria-label="Close" style="position:absolute;right:18px;top:18px;width:38px;height:38px;border:1px solid rgba(245,240,232,0.4);border-radius:50%;background:transparent;color:#f5f0e8;font-size:16px;cursor:pointer;">✕</button>
+      <h2 id="contact-title" style="margin:0;padding-right:44px;font-family:'Bricolage Grotesque',sans-serif;font-weight:400;font-size:clamp(36px,5vw,64px);letter-spacing:-0.035em;line-height:1.02;color:#f5f0e8;">Connect, collaborate,<br>or just say hello</h2>
+      <nav aria-label="Social links" style="display:flex;flex-direction:column;">
+        <sc-for list="{{ socials }}" as="s" hint-placeholder-count="5">
+          <a href="{{ s.href }}" target="{{ s.target }}" rel="noopener" aria-label="{{ s.aria }}" style="display:flex;justify-content:space-between;align-items:baseline;gap:14px;padding:12px 0;border-bottom:1px solid rgba(245,240,232,0.25);font-family:'Inter',sans-serif;font-size:clamp(22px,2.6vw,32px);letter-spacing:-0.02em;color:#f5f0e8;text-decoration:none;transition:padding 0.3s ease;" style-hover="color:#ffffff;padding-left:8px;">{{ s.label }}<span aria-hidden="true" style="font-size:0.6em;color:#9fd3c9;">↗</span></a>
+        </sc-for>
+      </nav>
+      <p style="margin:0;font-family:'Inter',sans-serif;font-size:13px;line-height:1.5;color:#eef4f2;">Thoughtfully designed, personally built by Shruti.<br>© 2026 · All rights reserved.</p>
+    </div>
+  </div>
+</sc-if>
+
+<sc-if value="{{ ovClassic }}" hint-placeholder-val="{{ false }}">
+  <div role="dialog" aria-modal="true" aria-labelledby="classic-title" data-screen-label="Classic view" style="position:fixed;inset:0;z-index:75;overflow:auto;background:#F3EEE4;color:#171717;">
+    <div style="position:sticky;top:0;z-index:2;display:flex;justify-content:space-between;align-items:center;gap:12px;padding:14px clamp(16px,4vw,56px);background:rgba(243,238,228,0.92);border-bottom:1px solid #e0d6c7;">
+      <span style="font-family:'Bricolage Grotesque',sans-serif;font-weight:500;font-size:19px;">Shruti Tomar</span>
+      <div style="display:flex;gap:8px;align-items:center;">
+        <a href="{{ resumeUrl }}" target="_blank" rel="noopener" style="padding:9px 14px;border-radius:999px;border:1px solid #d6ccbb;font-family:'Space Grotesk',sans-serif;font-size:14px;color:#171717;text-decoration:none;">Resume ↗</a>
+        <sc-if value="{{ glOk }}" hint-placeholder-val="{{ true }}">
+          <button type="button" data-close="1" onClick="{{ closeOverlay }}" style="padding:9px 16px;border:0;border-radius:999px;background:#171717;color:#ffffff;font-family:'Space Grotesk',sans-serif;font-size:14px;font-weight:500;cursor:pointer;">Back to the apartment</button>
+        </sc-if>
+      </div>
+    </div>
+    <main style="max-width:1080px;margin:0 auto;padding:clamp(40px,8vh,96px) clamp(20px,4vw,56px) 80px;display:flex;flex-direction:column;gap:clamp(56px,9vh,110px);">
+      <sc-if value="{{ noGL }}" hint-placeholder-val="{{ false }}">
+        <p style="margin:0;padding:12px 16px;border-radius:10px;background:#e6dccb;font-family:'Space Grotesk',sans-serif;font-size:14px;color:#2b2621;">The 3D apartment can’t run on this device, so here’s the portfolio in a simple layout.</p>
+      </sc-if>
+      <section style="display:flex;flex-direction:column;gap:16px;">
+        <h1 id="classic-title" style="margin:0;font-family:'Bricolage Grotesque',sans-serif;font-weight:500;font-size:clamp(40px,6vw,84px);letter-spacing:-0.04em;line-height:1;">Hello, I am <span style="color:#3F746E;">Shruti Tomar</span></h1>
+        <p style="margin:0;font-family:'Bricolage Grotesque',sans-serif;font-size:clamp(20px,2.2vw,30px);color:#2b2621;">Product Designer · UX Designer</p>
+        <p style="margin:0;font-family:'Space Grotesk',sans-serif;font-size:18px;color:#3d3328;">I turn ‘hmm, that’s weird’ into ‘oh, that makes sense’</p>
+      </section>
+      <section aria-labelledby="cl-work" style="display:flex;flex-direction:column;gap:20px;">
+        <h2 id="cl-work" style="margin:0;font-family:'Bricolage Grotesque',sans-serif;font-weight:500;font-size:clamp(28px,3vw,40px);letter-spacing:-0.03em;">Selected work</h2>
+        <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,300px),1fr));gap:16px;">
+          <sc-for list="{{ classicProjects }}" as="cp" hint-placeholder-count="4">
+            <article style="display:flex;flex-direction:column;gap:10px;padding:22px;border-radius:16px;background:{{ cp.bg }};color:{{ cp.ink }};">
+              <span style="font-family:'Space Grotesk',sans-serif;font-size:12px;letter-spacing:0.14em;text-transform:uppercase;color:{{ cp.sub }};">{{ cp.num }} · {{ cp.category }}</span>
+              <h3 style="margin:0;font-family:'Bricolage Grotesque',sans-serif;font-weight:500;font-size:30px;letter-spacing:-0.03em;">{{ cp.title }}</h3>
+              <p style="margin:0;font-family:'Bricolage Grotesque',sans-serif;font-size:18px;">{{ cp.subtitle }}</p>
+              <p style="margin:0;font-family:'Space Grotesk',sans-serif;font-size:14px;line-height:1.55;color:{{ cp.sub }};">{{ cp.summary }}</p>
+              <button type="button" onClick="{{ cp.open }}" style="align-self:flex-start;margin-top:6px;padding:10px 16px;border:0;border-radius:8px;background:{{ cp.ink }};color:{{ cp.bg }};font-family:'Space Grotesk',sans-serif;font-size:14px;font-weight:500;cursor:pointer;">Read case study →</button>
+            </article>
+          </sc-for>
+        </div>
+      </section>
+      <section aria-labelledby="cl-about" style="display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,300px),1fr));gap:24px;">
+        <h2 id="cl-about" style="margin:0;font-family:'Bricolage Grotesque',sans-serif;font-weight:500;font-size:clamp(28px,3vw,40px);letter-spacing:-0.03em;">Hi, I am <span style="color:#3F746E;">Shruti</span>.</h2>
+        <div style="display:flex;flex-direction:column;gap:14px;">
+          <p style="margin:0;font-family:'Space Grotesk',sans-serif;font-size:16px;line-height:1.6;color:#2b2621;">I was that person who’d open an app and find myself wondering, “How did they make this work so effortlessly?” I wanted to understand what went on behind the screens, so I started exploring frontend development. But somewhere along the way, I realised I was more drawn to designing the experience than writing the code.</p>
+          <p style="margin:0;font-family:'Space Grotesk',sans-serif;font-size:16px;line-height:1.6;color:#2b2621;">I followed that curiosity into product design, learning through experimentation, putting my work out there, and figuring things out one project at a time.</p>
+          <p style="margin:0;font-family:'Space Grotesk',sans-serif;font-size:16px;line-height:1.6;color:#2b2621;">I love experimenting, and lately, I’ve been designing immersive digital experiences for the real estate and built-environment industries at PropVR.</p>
+          <p style="margin:0;font-family:'Space Grotesk',sans-serif;font-size:16px;line-height:1.6;color:#2b2621;">Outside work: playing guitar, cricket, badminton, reading, coffee, and exploring new places.</p>
+        </div>
+      </section>
+      <section aria-labelledby="cl-contact" style="display:flex;flex-direction:column;gap:16px;padding:clamp(24px,4vw,48px);border-radius:20px;background:#3F746E;color:#f5f0e8;">
+        <h2 id="cl-contact" style="margin:0;font-family:'Bricolage Grotesque',sans-serif;font-weight:400;font-size:clamp(32px,4vw,56px);letter-spacing:-0.035em;line-height:1.02;">Connect, collaborate,<br>or just say hello</h2>
+        <nav aria-label="Social links" style="display:flex;flex-wrap:wrap;gap:10px 22px;">
+          <sc-for list="{{ socials }}" as="s" hint-placeholder-count="5">
+            <a href="{{ s.href }}" target="{{ s.target }}" rel="noopener" aria-label="{{ s.aria }}" style="font-family:'Space Grotesk',sans-serif;font-size:20px;color:#f5f0e8;">{{ s.label }}</a>
+          </sc-for>
+        </nav>
+      </section>
+    </main>
+  </div>
+</sc-if>
+
+<sc-if value="{{ csOpen }}" hint-placeholder-val="{{ false }}">
+  <div ref="{{ csRef }}" onScroll="{{ csScroll }}" tabindex="-1" role="dialog" aria-modal="true" aria-labelledby="cs-title" data-screen-label="Case study" style="position:fixed;inset:0;z-index:80;outline:none;overflow:auto;overflow-x:hidden;overscroll-behavior:contain;background:#FFFFFF;color:#111111;">
+    <sc-if value="{{ csIndexOn }}" hint-placeholder-val="{{ true }}">
+      <nav aria-label="Sections" style="position:fixed;left:0;top:0;bottom:0;width:168px;z-index:4;pointer-events:none;display:flex;flex-direction:column;justify-content:center;padding:0 0 0 24px;box-sizing:border-box;opacity:{{ csIdxOpacity }};transition:opacity 0.3s ease;">
+        <ol style="margin:0;padding:0;list-style:none;display:flex;flex-direction:column;gap:20px;pointer-events:{{ csIdxPtr }};">
+          <sc-for list="{{ csIndex }}" as="t" hint-placeholder-count="9">
+            <li><button type="button" onClick="{{ t.go }}" aria-current="{{ t.cur }}" style="display:flex;align-items:center;gap:12px;padding:2px 0;border:0;background:transparent;cursor:pointer;font-family:'Inter',sans-serif;font-size:16px;font-weight:400;line-height:1.25;text-align:left;white-space:nowrap;color:{{ t.ink }};transition:color 0.25s ease;" style-focus="outline:1px solid #3F746E;outline-offset:4px;"><span aria-hidden="true" style="flex:none;width:24px;height:1.5px;background:{{ t.line }};transition:background 0.25s ease;"></span>{{ t.short }}</button></li>
+          </sc-for>
+        </ol>
+      </nav>
+    </sc-if>
+    <button type="button" data-close="1" onClick="{{ closeCase }}" aria-label="Back to {{ backLabel }}" style="position:fixed;left:clamp(14px,2vw,24px);top:clamp(14px,2vw,22px);z-index:6;width:44px;height:44px;border-radius:50%;padding:0;display:flex;align-items:center;justify-content:center;cursor:pointer;background:{{ csGlassBg }};border:1px solid {{ csGlassLine }};color:{{ csGlassInk }};backdrop-filter:blur(14px) saturate(140%);-webkit-backdrop-filter:blur(14px) saturate(140%);transition:background 0.3s ease,color 0.3s ease,border-color 0.3s ease;" style-focus="outline:2px solid #3F746E;outline-offset:3px;"><svg aria-hidden="true" width="20" height="20" viewBox="0 0 20 20" fill="none"><path d="M16 10H4M9 5l-5 5 5 5" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"></path></svg></button>
+    <div style="position:fixed;right:clamp(14px,2vw,24px);top:clamp(14px,2vw,22px);z-index:6;display:{{ csTocBtn }};">
+      <button type="button" onClick="{{ csTocToggle }}" aria-expanded="{{ csTocExpanded }}" aria-controls="cs-toc" style="height:44px;padding:0 16px;border-radius:999px;cursor:pointer;font-family:'Inter',sans-serif;font-size:14px;background:{{ csGlassBg }};border:1px solid {{ csGlassLine }};color:{{ csGlassInk }};backdrop-filter:blur(14px) saturate(140%);-webkit-backdrop-filter:blur(14px) saturate(140%);" style-focus="outline:2px solid #3F746E;outline-offset:3px;">Index</button>
+      <sc-if value="{{ csTocOpen }}" hint-placeholder-val="{{ false }}">
+        <div id="cs-toc" style="position:absolute;right:0;top:calc(100% + 10px);width:min(260px,calc(100vw - 32px));max-height:70vh;overflow:auto;padding:6px;border-radius:14px;background:#FFFFFF;box-shadow:0 18px 40px -18px rgba(30,25,20,0.3);display:flex;flex-direction:column;">
+          <sc-for list="{{ cs.toc }}" as="t" hint-placeholder-count="9">
+            <button type="button" onClick="{{ t.go }}" style="display:flex;gap:12px;align-items:baseline;padding:9px 10px;border:0;border-radius:9px;background:transparent;color:#171717;text-align:left;font-family:'Inter',sans-serif;font-size:14px;cursor:pointer;" style-hover="background:#F7F6F2;" style-focus="outline:2px solid #3F746E;outline-offset:-2px;"><span style="color:#6c665c;font-size:12px;">{{ t.num }}</span><span>{{ t.label }}</span></button>
+          </sc-for>
+        </div>
+      </sc-if>
+    </div>
+    <article style="padding-left:{{ csIndexPad }};">
+      <div id="cs-intro">
+      <div data-cs-hero="1" style="position:relative;overflow:hidden;width:calc(100% + {{ csIndexPad }});margin-left:calc(0px - {{ csIndexPad }});aspect-ratio:16 / 9;max-height:100vh;background:#0b0b0d;">
+        <img src="{{ cs.cover }}" alt="{{ cs.heroAlt }}" style="position:absolute;inset:0;width:100%;height:100%;object-fit:cover;">
+        <sc-if value="{{ cs.titleOver }}" hint-placeholder-val="{{ true }}"><h1 id="cs-title" style="font-family:'Bricolage Grotesque',sans-serif;position:absolute;right:clamp(18px,5vw,72px);bottom:clamp(12px,1.8vw,28px);margin:0;font-weight:600;font-size:clamp(56px,11.5vw,176px);letter-spacing:-0.04em;line-height:0.9;color:{{ cs.heroInk }};">{{ cs.title }}</h1></sc-if>
+      </div>
+      <sc-if value="{{ cs.titleBelow }}" hint-placeholder-val="{{ false }}"><h1 id="cs-title" style="margin:0;padding:clamp(14px,2vw,28px) clamp(18px,5vw,72px) 0 0;text-align:right;font-family:'Bricolage Grotesque',sans-serif;font-weight:600;font-size:clamp(56px,11.5vw,176px);letter-spacing:-0.04em;line-height:0.9;color:{{ cs.heroInk }};">{{ cs.title }}</h1></sc-if><sc-if value="{{ cs.titleHidden }}" hint-placeholder-val="{{ false }}"><h1 id="cs-title" style="position:absolute;width:1px;height:1px;overflow:hidden;clip-path:inset(50%);white-space:nowrap;margin:0;">{{ cs.title }}</h1></sc-if>
+      <!-- ===== Case-study template (sections render from case-studies.js; empty ones are hidden) ===== -->
+      <div style="max-width:1360px;margin:0 auto;padding-left:clamp(16px,2.5vw,40px);padding-right:clamp(16px,2.5vw,40px);box-sizing:border-box;padding-top:clamp(64px,10vh,112px);">
+        <div style="padding-left:clamp(0px,4.5vw,80px);padding-right:clamp(0px,4.5vw,80px);box-sizing:border-box;display:flex;flex-direction:column;gap:20px;">
+          <sc-if value="{{ cs.intro.hasKicker }}" hint-placeholder-val="{{ false }}"><span style="font-family:'Inter',sans-serif;font-size:12px;font-weight:600;letter-spacing:0.12em;text-transform:uppercase;line-height:1.3;color:#8A8A8A;">{{ cs.intro.kicker }}</span></sc-if>
+          <h2 id="cs-h-intro" style="font-family:'Bricolage Grotesque',sans-serif;margin:0;font-weight:500;font-size:clamp(34px,3.4vw,48px);letter-spacing:-0.03em;line-height:1.1;color:#111111;max-width:20em;text-wrap:balance;">{{ cs.intro.title }}</h2>
+          <sc-for list="{{ cs.introText }}" as="t" hint-placeholder-count="1"><p style="margin:0;font-family:'Inter',sans-serif;font-size:16px;line-height:1.65;color:#8A8A8A;max-width:62em;text-wrap:pretty;">{{ t.t }}</p></sc-for>
+          <dl style="margin:12px 0 0;display:flex;flex-wrap:wrap;gap:18px clamp(28px,4vw,64px);font-family:'Inter',sans-serif;">
+            <sc-for list="{{ cs.meta }}" as="m" hint-placeholder-count="4"><div style="display:flex;flex-direction:column;gap:6px;"><dt style="font-size:12px;line-height:1.3;color:#9A9A9A;">{{ m.k }}</dt><dd style="margin:0;font-size:15px;line-height:1.4;color:#111111;"><sc-if value="{{ m.noLink }}" hint-placeholder-val="{{ true }}">{{ m.v }}</sc-if><sc-if value="{{ m.hasLink }}" hint-placeholder-val="{{ false }}"><a href="{{ m.href }}" target="_blank" rel="noopener" aria-label="{{ m.v }} (opens in a new tab)" style="display:inline-flex;align-items:center;gap:5px;color:#111111;text-decoration:underline;text-decoration-color:#C4C4C4;text-underline-offset:4px;transition:text-decoration-color 0.2s ease;" style-hover="text-decoration-color:#111111;" style-focus="outline:2px solid #111111;outline-offset:3px;">{{ m.v }}<svg aria-hidden="true" width="11" height="11" viewBox="0 0 12 12" fill="none"><path d="M3.5 8.5l5-5M4.5 3.5h4v4" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"></path></svg></a></sc-if></dd></div></sc-for>
+          </dl>
+        </div>
+        <sc-if value="{{ cs.hasIntroImg }}" hint-placeholder-val="{{ true }}"><div data-reveal="1" style="margin-top:clamp(40px,6vh,64px);border-radius:16px;overflow:hidden;background:#EFEFEF;"><sc-if value="{{ cs.introImg.has }}" hint-placeholder-val="{{ false }}"><img src="{{ cs.introImg.src }}" alt="{{ cs.introImg.label }}" loading="lazy" style="display:block;width:100%;height:auto;"></sc-if><sc-if value="{{ cs.introImg.none }}" hint-placeholder-val="{{ true }}"><div data-img-placeholder="1" style="aspect-ratio:{{ cs.introImg.ratio }};display:flex;flex-direction:column;align-items:center;justify-content:center;gap:8px;padding:16px;box-sizing:border-box;outline:1.5px dashed #C4C4C4;outline-offset:-10px;color:#9A9A9A;font-family:'Inter',sans-serif;font-size:13px;line-height:1.35;text-align:center;"><svg aria-hidden="true" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="18" height="18" rx="2"></rect><circle cx="8.5" cy="8.5" r="1.5"></circle><path d="m21 15-5-5L5 21"></path></svg><span>{{ cs.introImg.label }}</span></div></sc-if></div></sc-if><sc-if value="{{ cs.hasPair }}" hint-placeholder-val="{{ false }}"><div data-reveal="1" style="margin-top:clamp(36px,6vh,56px);display:flex;flex-direction:column;gap:18px;"><sc-if value="{{ cs.pair.hasTitle }}" hint-placeholder-val="{{ false }}"><h3 style="font-family:'Bricolage Grotesque',sans-serif;margin:0;padding-left:clamp(0px,4.5vw,80px);font-weight:500;font-size:clamp(20px,1.8vw,24px);letter-spacing:-0.015em;line-height:1.25;color:#111111;">{{ cs.pair.title }}</h3></sc-if><div style="display:grid;grid-template-columns:{{ csPairCols }};align-items:start;gap:clamp(14px,2vw,24px);"><figure style="margin:0;display:flex;flex-direction:column;gap:10px;"><figcaption style="font-family:'Inter',sans-serif;font-size:12px;font-weight:600;letter-spacing:0.1em;text-transform:uppercase;line-height:1.3;color:#8A8A8A;">{{ cs.pair.l.label }}</figcaption><div style="border-radius:14px;overflow:hidden;background:#EFEFEF;box-shadow:0 0 0 1px #EDEDED;"><sc-if value="{{ cs.pair.l.img.has }}" hint-placeholder-val="{{ false }}"><img src="{{ cs.pair.l.img.src }}" alt="{{ cs.pair.l.img.label }}" loading="lazy" style="display:block;width:100%;height:auto;"></sc-if><sc-if value="{{ cs.pair.l.img.none }}" hint-placeholder-val="{{ true }}"><div data-img-placeholder="1" style="aspect-ratio:{{ cs.pair.l.img.ratio }};display:flex;flex-direction:column;align-items:center;justify-content:center;gap:8px;padding:16px;box-sizing:border-box;outline:1.5px dashed #C4C4C4;outline-offset:-10px;color:#9A9A9A;font-family:'Inter',sans-serif;font-size:13px;line-height:1.35;text-align:center;"><svg aria-hidden="true" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="18" height="18" rx="2"></rect><circle cx="8.5" cy="8.5" r="1.5"></circle><path d="m21 15-5-5L5 21"></path></svg><span>{{ cs.pair.l.img.label }}</span></div></sc-if></div></figure><span aria-hidden="true" style="justify-self:center;margin-top:22px;width:40px;height:40px;border-radius:50%;background:#FFFFFF;box-shadow:0 0 0 1px #E2E2E2;color:#555555;display:flex;align-items:center;justify-content:center;transform:rotate({{ csPairRot }});"><svg width="16" height="16" viewBox="0 0 16 16" fill="none"><path d="M3 8h10M9 4l4 4-4 4" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"></path></svg></span><figure style="margin:0;display:flex;flex-direction:column;gap:10px;"><figcaption style="font-family:'Inter',sans-serif;font-size:12px;font-weight:600;letter-spacing:0.1em;text-transform:uppercase;line-height:1.3;color:#8A8A8A;">{{ cs.pair.r.label }}</figcaption><div style="border-radius:14px;overflow:hidden;background:#EFEFEF;box-shadow:0 0 0 1px #EDEDED;"><sc-if value="{{ cs.pair.r.img.has }}" hint-placeholder-val="{{ false }}"><img src="{{ cs.pair.r.img.src }}" alt="{{ cs.pair.r.img.label }}" loading="lazy" style="display:block;width:100%;height:auto;"></sc-if><sc-if value="{{ cs.pair.r.img.none }}" hint-placeholder-val="{{ true }}"><div data-img-placeholder="1" style="aspect-ratio:{{ cs.pair.r.img.ratio }};display:flex;flex-direction:column;align-items:center;justify-content:center;gap:8px;padding:16px;box-sizing:border-box;outline:1.5px dashed #C4C4C4;outline-offset:-10px;color:#9A9A9A;font-family:'Inter',sans-serif;font-size:13px;line-height:1.35;text-align:center;"><svg aria-hidden="true" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="18" height="18" rx="2"></rect><circle cx="8.5" cy="8.5" r="1.5"></circle><path d="m21 15-5-5L5 21"></path></svg><span>{{ cs.pair.r.img.label }}</span></div></sc-if></div></figure></div></div></sc-if><sc-if value="{{ cs.hasCompare }}" hint-placeholder-val="{{ false }}"><div style="margin-top:clamp(72px,11vh,120px);display:flex;flex-direction:column;gap:clamp(28px,4vh,40px);"><div data-reveal="1" style="padding-left:clamp(0px,4.5vw,80px);padding-right:clamp(0px,4.5vw,80px);box-sizing:border-box;display:flex;flex-direction:column;gap:12px;"><h3 style="font-family:'Bricolage Grotesque',sans-serif;margin:0;font-weight:500;font-size:clamp(24px,2.2vw,30px);letter-spacing:-0.02em;line-height:1.2;color:#111111;">{{ cs.compareTitle }}</h3><sc-for list="{{ cs.compareText }}" as="t" hint-placeholder-count="1"><p style="margin:0;font-family:'Inter',sans-serif;font-size:16px;line-height:1.65;color:#8A8A8A;max-width:62em;">{{ t.t }}</p></sc-for></div><sc-for list="{{ cs.compare }}" as="cv" hint-placeholder-count="2"><sc-if value="{{ cv.sep }}" hint-placeholder-val="{{ false }}"><div aria-hidden="true" style="display:flex;align-items:center;gap:16px;margin:clamp(8px,2vh,20px) 0;"><span style="flex:1;height:1px;background:#E4E4E4;"></span><svg width="16" height="16" viewBox="0 0 16 16" fill="none" style="color:#B5B5B5;"><path d="M8 2v12M3.5 9.5 8 14l4.5-4.5" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"></path></svg><span style="flex:1;height:1px;background:#E4E4E4;"></span></div></sc-if><figure data-reveal="1" style="margin:0;display:flex;flex-direction:column;gap:14px;"><figcaption style="display:flex;align-items:center;gap:10px;font-family:'Inter',sans-serif;font-size:12px;font-weight:600;letter-spacing:0.12em;text-transform:uppercase;color:#8A8A8A;"><span aria-hidden="true" style="width:8px;height:8px;border-radius:50%;background:{{ cv.dot }};"></span>{{ cv.label }}</figcaption><div style="border-radius:16px;overflow:hidden;background:#EFEFEF;box-shadow:0 0 0 1px #EDEDED;display:flex;flex-direction:column;gap:18px;{{ cv.panel }}"><div tabindex="{{ cv.tab }}" aria-label="{{ cv.label }}" style="{{ cv.frame }}"><sc-if value="{{ cv.img.has }}" hint-placeholder-val="{{ false }}"><img src="{{ cv.img.src }}" alt="{{ cv.img.label }}" loading="lazy" style="display:block;width:100%;height:auto;"></sc-if><sc-if value="{{ cv.img.none }}" hint-placeholder-val="{{ true }}"><div data-img-placeholder="1" style="aspect-ratio:{{ cv.img.ratio }};display:flex;flex-direction:column;align-items:center;justify-content:center;gap:8px;padding:16px;box-sizing:border-box;outline:1.5px dashed #C4C4C4;outline-offset:-10px;color:#9A9A9A;font-family:'Inter',sans-serif;font-size:13px;line-height:1.35;text-align:center;"><svg aria-hidden="true" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="18" height="18" rx="2"></rect><circle cx="8.5" cy="8.5" r="1.5"></circle><path d="m21 15-5-5L5 21"></path></svg><span>{{ cv.img.label }}</span></div></sc-if></div><sc-if value="{{ cv.scroll }}" hint-placeholder-val="{{ false }}"><span aria-hidden="true" style="align-self:center;display:inline-flex;align-items:center;gap:6px;padding:7px 12px;border-radius:999px;background:#FFFFFF;box-shadow:0 0 0 1px #E2E2E2;color:#555555;font-family:'Inter',sans-serif;font-size:12px;line-height:1;white-space:nowrap;"><svg width="12" height="12" viewBox="0 0 12 12" fill="none"><path d="M6 1.5v9M2.5 7 6 10.5 9.5 7" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"></path></svg>Scroll the page</span></sc-if></div></figure></sc-for></div></sc-if>
+      </div>
+      </div>
+
+      <sc-for list="{{ cs.sections }}" as="sec" hint-placeholder-count="8">
+        <section id="{{ sec.id }}" aria-labelledby="{{ sec.hid }}" style="max-width:1360px;margin:0 auto;padding-left:clamp(16px,2.5vw,40px);padding-right:clamp(16px,2.5vw,40px);box-sizing:border-box;padding-top:clamp(96px,14vh,168px);scroll-margin-top:24px;">
+          <div data-reveal="1" style="padding-left:clamp(0px,4.5vw,80px);padding-right:clamp(0px,4.5vw,80px);box-sizing:border-box;display:flex;flex-direction:column;gap:18px;">
+            <sc-if value="{{ sec.hasKicker }}" hint-placeholder-val="{{ false }}"><span style="font-family:'Inter',sans-serif;font-size:12px;font-weight:600;letter-spacing:0.12em;text-transform:uppercase;line-height:1.3;color:#8A8A8A;">{{ sec.kicker }}</span></sc-if>
+            <h2 id="{{ sec.hid }}" style="{{ sec.titleCss }}">{{ sec.titleTxt }}</h2>
+            <sc-if value="{{ sec.hasLead }}" hint-placeholder-val="{{ false }}"><p style="margin:6px 0 0;font-family:'Inter',sans-serif;font-weight:600;font-size:15px;line-height:1.5;color:#111111;">{{ sec.lead }}</p></sc-if>
+            <sc-for list="{{ sec.text }}" as="t" hint-placeholder-count="1"><p style="margin:{{ t.tm }};font-family:'Inter',sans-serif;font-size:16px;line-height:1.65;color:#8A8A8A;max-width:62em;text-wrap:pretty;text-align:{{ t.ta }};">{{ t.t }}</p></sc-for>
+            <sc-if value="{{ sec.hasList }}" hint-placeholder-val="{{ false }}"><ol style="margin:0;font-family:'Inter',sans-serif;font-size:16px;line-height:1.65;color:#8A8A8A;max-width:62em;text-wrap:pretty;padding-left:1.3em;display:flex;flex-direction:column;gap:4px;"><sc-for list="{{ sec.list }}" as="t" hint-placeholder-count="3"><li>{{ t.t }}</li></sc-for></ol></sc-if>
+          </div>
+
+          <sc-if value="{{ sec.isProblem }}" hint-placeholder-val="{{ false }}">
+            <div style="padding-left:clamp(0px,4.5vw,80px);padding-right:clamp(0px,4.5vw,80px);box-sizing:border-box;display:flex;flex-direction:column;gap:32px;margin-top:36px;">
+              <div data-reveal="1" style="display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,240px),1fr));gap:16px;">
+                <sc-for list="{{ sec.cards }}" as="c" hint-placeholder-count="3"><div style="min-height:clamp(150px,16vw,200px);padding:24px 24px 28px;border-radius:14px;background:#F3F3F3;box-sizing:border-box;display:flex;flex-direction:column;gap:18px;font-family:'Inter',sans-serif;"><sc-if value="{{ c.hasNum }}" hint-placeholder-val="{{ false }}"><span style="font-size:13px;font-weight:500;color:#8A8A8A;margin-bottom:-6px;">{{ c.n }}</span></sc-if><h3 style="font-family:'Bricolage Grotesque',sans-serif;margin:0;font-weight:500;font-size:20px;letter-spacing:-0.015em;line-height:1.3;color:#111111;">{{ c.t }}</h3><p style="margin:0;font-size:15px;line-height:1.55;color:#8A8A8A;">{{ c.p }}</p></div></sc-for>
+              </div>
+              <sc-if value="{{ sec.hasChallenge }}" hint-placeholder-val="{{ false }}"><div data-reveal="1" style="display:flex;flex-direction:column;gap:6px;"><span style="font-family:'Inter',sans-serif;font-weight:600;font-size:15px;line-height:1.5;color:#111111;">{{ sec.challengeLabel }}</span><p style="margin:0;font-family:'Inter',sans-serif;font-size:16px;line-height:1.65;color:#8A8A8A;max-width:62em;text-wrap:pretty;">{{ sec.challenge }}</p></div></sc-if>
+            </div>
+          </sc-if>
+
+          <sc-if value="{{ sec.hasBoards }}" hint-placeholder-val="{{ false }}">
+            <div style="display:flex;flex-direction:column;gap:clamp(28px,5vh,48px);margin-top:clamp(36px,6vh,56px);">
+              <sc-for list="{{ sec.boards }}" as="b" hint-placeholder-count="2">
+                <figure data-reveal="1" style="margin:0;display:flex;flex-direction:column;gap:10px;">
+                  <sc-if value="{{ b.hasCap }}" hint-placeholder-val="{{ false }}"><figcaption style="font-family:'Inter',sans-serif;font-size:12px;line-height:1.3;color:#8A8A8A;">{{ b.cap }}</figcaption></sc-if>
+                  <sc-if value="{{ b.hasTitle }}" hint-placeholder-val="{{ false }}"><h3 style="font-family:'Bricolage Grotesque',sans-serif;margin:0;font-weight:500;font-size:clamp(19px,1.6vw,22px);letter-spacing:-0.015em;line-height:1.3;color:#111111;">{{ b.title }}</h3></sc-if><div style="border-radius:14px;overflow:hidden;background:{{ b.bg }};box-shadow:{{ b.ring }};display:flex;flex-direction:column;gap:18px;{{ b.panel }}"><div tabindex="{{ b.tab }}" aria-label="{{ b.label }}" style="{{ b.frame }}"><sc-if value="{{ b.has }}" hint-placeholder-val="{{ false }}"><img src="{{ b.src }}" alt="{{ b.label }}" loading="lazy" style="display:block;width:100%;height:auto;"></sc-if><sc-if value="{{ b.none }}" hint-placeholder-val="{{ true }}"><div data-img-placeholder="1" style="aspect-ratio:{{ b.ratio }};display:flex;flex-direction:column;align-items:center;justify-content:center;gap:8px;padding:16px;box-sizing:border-box;outline:1.5px dashed #C4C4C4;outline-offset:-10px;color:#9A9A9A;font-family:'Inter',sans-serif;font-size:13px;line-height:1.35;text-align:center;"><svg aria-hidden="true" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="18" height="18" rx="2"></rect><circle cx="8.5" cy="8.5" r="1.5"></circle><path d="m21 15-5-5L5 21"></path></svg><span>{{ b.label }}</span></div></sc-if></div><sc-if value="{{ b.scroll }}" hint-placeholder-val="{{ false }}"><span aria-hidden="true" style="align-self:center;display:inline-flex;align-items:center;gap:6px;padding:7px 12px;border-radius:999px;background:#FFFFFF;box-shadow:0 0 0 1px #E2E2E2;color:#555555;font-family:'Inter',sans-serif;font-size:12px;line-height:1;white-space:nowrap;"><svg width="12" height="12" viewBox="0 0 12 12" fill="none"><path d="M6 1.5v9M2.5 7 6 10.5 9.5 7" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"></path></svg>Scroll the page</span></sc-if></div>
+                <sc-if value="{{ b.hasNote }}" hint-placeholder-val="{{ false }}"><p style="margin:0;font-family:'Inter',sans-serif;font-size:14px;line-height:1.6;color:#8A8A8A;max-width:46em;">{{ b.note }}</p></sc-if></figure>
+              </sc-for>
+            </div>
+          </sc-if>
+
+          <sc-if value="{{ sec.hasGroups }}" hint-placeholder-val="{{ false }}"><div style="display:flex;flex-direction:column;gap:clamp(56px,9vh,96px);margin-top:clamp(56px,8vh,80px);"><sc-for list="{{ sec.groups }}" as="g" hint-placeholder-count="3"><div data-reveal="1" style="display:flex;flex-direction:column;gap:clamp(32px,5vh,48px);"><div style="padding-left:clamp(0px,4.5vw,80px);padding-right:clamp(0px,4.5vw,80px);display:flex;flex-direction:column;gap:8px;"><h3 style="font-family:'Bricolage Grotesque',sans-serif;margin:0;font-weight:500;font-size:clamp(22px,2vw,28px);letter-spacing:-0.02em;line-height:1.2;color:#111111;">{{ g.title }}</h3><sc-if value="{{ g.hasText }}" hint-placeholder-val="{{ false }}"><p style="margin:0;font-family:'Inter',sans-serif;font-size:16px;line-height:1.65;color:#8A8A8A;max-width:52em;">{{ g.text }}</p></sc-if></div><sc-for list="{{ g.pairs }}" as="pp" hint-placeholder-count="1"><div style="display:flex;flex-direction:column;gap:10px;"><div style="display:grid;grid-template-columns:{{ csPairCols }};align-items:start;gap:clamp(14px,2vw,24px);"><figure style="margin:0;display:flex;flex-direction:column;gap:10px;"><figcaption style="font-family:'Inter',sans-serif;font-size:12px;font-weight:600;letter-spacing:0.1em;text-transform:uppercase;line-height:1.3;color:#8A8A8A;">{{ pp.l.label }}</figcaption><div style="border-radius:14px;overflow:hidden;"><sc-if value="{{ pp.l.img.has }}" hint-placeholder-val="{{ false }}"><img src="{{ pp.l.img.src }}" alt="{{ pp.l.img.label }}" loading="lazy" style="display:block;width:100%;height:auto;"></sc-if><sc-if value="{{ pp.l.img.none }}" hint-placeholder-val="{{ true }}"><div data-img-placeholder="1" style="aspect-ratio:{{ pp.l.img.ratio }};display:flex;flex-direction:column;align-items:center;justify-content:center;gap:8px;padding:16px;box-sizing:border-box;outline:1.5px dashed #C4C4C4;outline-offset:-10px;color:#9A9A9A;font-family:'Inter',sans-serif;font-size:13px;line-height:1.35;text-align:center;"><svg aria-hidden="true" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="18" height="18" rx="2"></rect><circle cx="8.5" cy="8.5" r="1.5"></circle><path d="m21 15-5-5L5 21"></path></svg><span>{{ pp.l.img.label }}</span></div></sc-if></div></figure><span aria-hidden="true" style="justify-self:center;margin-top:22px;width:40px;height:40px;border-radius:50%;background:#FFFFFF;box-shadow:0 0 0 1px #E2E2E2;color:#555555;display:flex;align-items:center;justify-content:center;transform:rotate({{ csPairRot }});"><svg width="16" height="16" viewBox="0 0 16 16" fill="none"><path d="M3 8h10M9 4l4 4-4 4" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"></path></svg></span><figure style="margin:0;display:flex;flex-direction:column;gap:10px;"><figcaption style="font-family:'Inter',sans-serif;font-size:12px;font-weight:600;letter-spacing:0.1em;text-transform:uppercase;line-height:1.3;color:#8A8A8A;">{{ pp.r.label }}</figcaption><div style="border-radius:14px;overflow:hidden;"><sc-if value="{{ pp.r.img.has }}" hint-placeholder-val="{{ false }}"><img src="{{ pp.r.img.src }}" alt="{{ pp.r.img.label }}" loading="lazy" style="display:block;width:100%;height:auto;"></sc-if><sc-if value="{{ pp.r.img.none }}" hint-placeholder-val="{{ true }}"><div data-img-placeholder="1" style="aspect-ratio:{{ pp.r.img.ratio }};display:flex;flex-direction:column;align-items:center;justify-content:center;gap:8px;padding:16px;box-sizing:border-box;outline:1.5px dashed #C4C4C4;outline-offset:-10px;color:#9A9A9A;font-family:'Inter',sans-serif;font-size:13px;line-height:1.35;text-align:center;"><svg aria-hidden="true" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="18" height="18" rx="2"></rect><circle cx="8.5" cy="8.5" r="1.5"></circle><path d="m21 15-5-5L5 21"></path></svg><span>{{ pp.r.img.label }}</span></div></sc-if></div></figure></div><sc-if value="{{ pp.hasCap }}" hint-placeholder-val="{{ false }}"><p style="margin:0;font-family:'Inter',sans-serif;font-size:14px;line-height:1.6;color:#8A8A8A;text-align:center;">{{ pp.cap }}</p></sc-if></div></sc-for></div></sc-for></div></sc-if>
+
+          <sc-if value="{{ sec.isPalette }}" hint-placeholder-val="{{ false }}">
+            <div style="display:flex;flex-direction:column;gap:clamp(40px,6vh,64px);margin-top:clamp(36px,6vh,56px);font-family:'Inter',sans-serif;">
+              <div data-reveal="1" style="display:grid;grid-template-columns:repeat({{ csPalCols }},minmax(0,1fr));gap:12px;">
+                <sc-for list="{{ sec.swatches }}" as="w" hint-placeholder-count="9">
+                  <div style="grid-column:span {{ w.span }};min-height:{{ w.h }};padding:18px 18px 16px;border-radius:12px;background:{{ w.bg }};color:{{ w.ink }};box-shadow:{{ w.sh }};box-sizing:border-box;display:flex;flex-direction:column;justify-content:space-between;gap:28px;">
+                    <div style="display:flex;flex-direction:column;gap:4px;"><span style="font-size:11px;line-height:1.3;opacity:0.7;">{{ w.role }}</span><span style="font-size:18px;font-weight:500;letter-spacing:-0.01em;line-height:1.25;">{{ w.name }}</span></div>
+                    <div style="display:flex;align-items:center;justify-content:space-between;gap:12px;">
+                      <span style="font-size:11px;font-weight:500;letter-spacing:0.04em;text-transform:uppercase;">{{ w.hex }}</span>
+                      <sc-if value="{{ w.hasBtn }}" hint-placeholder-val="{{ false }}"><span style="padding:9px 18px;border-radius:999px;background:{{ w.btnBg }};color:{{ w.btnInk }};font-size:13px;font-weight:500;white-space:nowrap;">{{ w.btn }}</span></sc-if>
+                      <sc-if value="{{ w.hasCopy }}" hint-placeholder-val="{{ true }}"><span style="display:flex;align-items:center;gap:10px;"><sc-if value="{{ w.hasChip }}" hint-placeholder-val="{{ false }}"><span aria-hidden="true" style="width:28px;height:16px;border-radius:4px;background:{{ w.chip }};box-shadow:inset 0 0 0 1px rgba(0,0,0,0.08);"></span></sc-if><button type="button" onClick="{{ w.copy }}" aria-label="Copy {{ w.name }} colour {{ w.hex }}" title="Copy {{ w.hex }}" style="display:flex;padding:2px;border:0;background:transparent;color:inherit;opacity:0.65;cursor:pointer;" style-hover="opacity:1;"><svg aria-hidden="true" width="14" height="14" viewBox="0 0 16 16" fill="none"><rect x="5" y="5" width="9" height="9" rx="2" stroke="currentColor" stroke-width="1.4"></rect><path d="M11 5V3.5A1.5 1.5 0 0 0 9.5 2h-6A1.5 1.5 0 0 0 2 3.5v6A1.5 1.5 0 0 0 3.5 11H5" stroke="currentColor" stroke-width="1.4"></path></svg></button></span></sc-if>
+                    </div>
+                  </div>
+                </sc-for>
+              </div>
+              <sc-if value="{{ sec.hasButtons }}" hint-placeholder-val="{{ false }}">
+                <div data-reveal="1" style="padding:24px;border-radius:14px;background:#FFFFFF;box-shadow:0 0 0 1px #EDEDED, 0 10px 28px -16px rgba(0,0,0,0.18);display:flex;flex-direction:column;gap:6px;">
+                  <h3 style="font-family:'Bricolage Grotesque',sans-serif;margin:0;font-weight:500;font-size:16px;line-height:1.35;color:#111111;">{{ sec.buttons.title }}</h3>
+                  <p style="margin:0;font-size:13px;line-height:1.5;color:#8A8A8A;">{{ sec.buttons.text }}</p>
+                  <div style="display:flex;flex-wrap:wrap;gap:12px;margin-top:14px;"><span style="padding:11px 22px;border-radius:8px;background:{{ sec.buttons.bg }};color:{{ sec.buttons.ink }};font-size:13px;font-weight:500;">{{ sec.buttons.primary }}</span><span style="padding:10px 21px;border-radius:8px;border:1px solid #DCDCDC;color:#111111;font-size:13px;font-weight:500;">{{ sec.buttons.secondary }}</span></div>
+                </div>
+              </sc-if>
+              <sc-if value="{{ sec.hasTokens }}" hint-placeholder-val="{{ false }}">
+                <div data-reveal="1" style="display:flex;flex-direction:column;gap:clamp(22px,3vh,32px);">
+                  <div style="display:flex;flex-wrap:wrap;align-items:flex-end;justify-content:space-between;gap:8px 24px;"><div style="display:flex;flex-direction:column;gap:10px;"><span style="font-size:13px;font-weight:600;letter-spacing:0.12em;text-transform:uppercase;line-height:1.3;color:#7A7884;">{{ sec.tokens.kicker }}</span><h3 style="font-family:'Bricolage Grotesque',sans-serif;margin:0;font-weight:600;font-size:clamp(28px,2.8vw,40px);letter-spacing:-0.025em;line-height:1.15;color:#111111;">{{ sec.tokens.title }}</h3></div><span style="font-size:16px;line-height:1.4;color:#7A7884;padding-bottom:4px;">{{ sec.tokens.note }}</span></div>
+                  <div role="table" aria-label="{{ sec.tokens.title }}" style="overflow-x:auto;border-radius:20px;background:#FFFFFF;border:1px solid #E6E4EA;box-shadow:0 24px 48px -28px rgba(30,25,50,0.22);">
+                    <div style="min-width:640px;">
+                      <div role="row" style="display:grid;grid-template-columns:minmax(0,1.45fr) minmax(0,0.95fr) minmax(0,1.95fr) minmax(0,0.85fr);align-items:center;padding:24px 30px;background:#F0EEF3;"><span role="columnheader" style="font-size:12px;font-weight:600;letter-spacing:0.09em;text-transform:uppercase;color:#6E6C78;">Token name</span><span role="columnheader" style="font-size:12px;font-weight:600;letter-spacing:0.09em;text-transform:uppercase;color:#6E6C78;">Hex code</span><span role="columnheader" style="font-size:12px;font-weight:600;letter-spacing:0.09em;text-transform:uppercase;color:#6E6C78;">Usage category</span><span role="columnheader" style="font-size:12px;font-weight:600;letter-spacing:0.09em;text-transform:uppercase;color:#6E6C78;">Preview</span></div>
+                      <sc-for list="{{ sec.tokens.rows }}" as="r" hint-placeholder-count="5"><div role="row" style="display:grid;grid-template-columns:minmax(0,1.45fr) minmax(0,0.95fr) minmax(0,1.95fr) minmax(0,0.85fr);align-items:center;padding:22px 30px;border-top:1px solid #ECEAF0;"><span role="rowheader" style="font-size:17px;font-weight:600;line-height:1.35;color:#111111;">{{ r.name }}</span><span role="cell" style="font-size:16px;font-weight:600;line-height:1.35;color:#4D4673;">{{ r.hex }}</span><span role="cell" style="font-size:17px;line-height:1.45;color:#6E6C78;">{{ r.use }}</span><span role="cell"><span aria-hidden="true" style="display:block;width:64px;height:32px;border-radius:7px;background:{{ r.hex }};box-shadow:inset 0 0 0 1px rgba(20,15,40,0.10), 0 3px 6px -2px rgba(20,15,40,0.25);"></span></span></div></sc-for>
+                    </div>
+                  </div>
+                </div>
+              </sc-if>
+            </div>
+          </sc-if>
+
+          <sc-if value="{{ sec.isSolution }}" hint-placeholder-val="{{ false }}">
+            <div style="display:flex;flex-direction:column;margin-top:clamp(32px,5vh,48px);">
+              <div style="padding-left:clamp(0px,4.5vw,80px);padding-right:clamp(0px,4.5vw,80px);box-sizing:border-box;display:flex;flex-direction:column;gap:clamp(24px,4vh,40px);">
+                <sc-for list="{{ sec.rows }}" as="r" hint-placeholder-count="4">
+                  <div data-reveal="1" style="display:flex;flex-wrap:wrap;flex-direction:{{ r.dir }};align-items:center;gap:clamp(24px,4vw,48px);">
+                    <div style="flex:1.9 1 420px;border-radius:14px;overflow:hidden;background:#EFEFEF;"><sc-if value="{{ r.img.has }}" hint-placeholder-val="{{ false }}"><img src="{{ r.img.src }}" alt="{{ r.img.label }}" loading="lazy" style="{{ r.img.style }}"></sc-if><sc-if value="{{ r.img.none }}" hint-placeholder-val="{{ true }}"><div data-img-placeholder="1" style="aspect-ratio:{{ r.img.ratio }};display:flex;flex-direction:column;align-items:center;justify-content:center;gap:8px;padding:16px;box-sizing:border-box;outline:1.5px dashed #C4C4C4;outline-offset:-10px;color:#9A9A9A;font-family:'Inter',sans-serif;font-size:13px;line-height:1.35;text-align:center;"><svg aria-hidden="true" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="18" height="18" rx="2"></rect><circle cx="8.5" cy="8.5" r="1.5"></circle><path d="m21 15-5-5L5 21"></path></svg><span>{{ r.img.label }}</span></div></sc-if></div>
+                    <div style="flex:1 1 220px;display:flex;flex-direction:column;gap:14px;font-family:'Inter',sans-serif;"><sc-if value="{{ r.hasNum }}" hint-placeholder-val="{{ false }}"><span style="font-size:13px;font-weight:500;color:#8A8A8A;margin-bottom:-4px;">{{ r.n }}</span></sc-if><h3 style="font-family:'Bricolage Grotesque',sans-serif;margin:0;font-weight:500;font-size:clamp(19px,1.6vw,22px);letter-spacing:-0.015em;line-height:1.3;color:#111111;">{{ r.t }}</h3><p style="margin:0;font-size:14px;line-height:1.6;color:#8A8A8A;">{{ r.p }}</p></div>
+                  </div>
+                </sc-for>
+              </div>
+              <sc-for list="{{ sec.carousels }}" as="car" hint-placeholder-count="2">
+                <div data-reveal="1" style="position:relative;margin-top:clamp(64px,10vh,112px);padding:clamp(40px,6vh,64px) 0 clamp(48px,8vh,80px);border-radius:16px;background:#EFEFEF;font-family:'Inter',sans-serif;">
+                  <sc-if value="{{ car.hasTitle }}" hint-placeholder-val="{{ true }}"><h3 style="font-family:'Bricolage Grotesque',sans-serif;margin:0 0 clamp(28px,5vh,44px);text-align:center;font-weight:400;font-size:14px;line-height:1.4;color:#555555;">{{ car.title }}</h3></sc-if>
+                  <div id="{{ car.id }}" onScroll="{{ car.onScroll }}" style="overflow-x:auto;scroll-snap-type:x mandatory;scrollbar-width:none;-ms-overflow-style:none;">
+                    <div style="display:flex;gap:clamp(16px,2vw,28px);width:max-content;margin:0 auto;padding:0 clamp(56px,7vw,112px);">
+                      <sc-for list="{{ car.screens }}" as="sc" hint-placeholder-count="4">
+                        <div style="flex:none;width:clamp(150px,17vw,240px);display:flex;flex-direction:column;gap:clamp(18px,3vh,32px);scroll-snap-align:center;">
+                          <sc-if value="{{ car.hasLabels }}" hint-placeholder-val="{{ false }}"><span style="text-align:center;font-family:'Bricolage Grotesque',sans-serif;font-weight:400;font-size:14px;line-height:1.4;color:#555555;">{{ sc.label }}</span></sc-if>
+                          <div style="position:relative;aspect-ratio:600 / 1304;border-radius:6px;overflow:hidden;background:#E2E2E2;"><div tabindex="{{ sc.tab }}" aria-label="{{ sc.img.label }}" style="position:absolute;inset:0;{{ sc.frame }}"><sc-if value="{{ sc.img.has }}" hint-placeholder-val="{{ false }}"><img src="{{ sc.img.src }}" alt="{{ sc.img.label }}" loading="lazy" style="display:block;width:100%;height:auto;"></sc-if><sc-if value="{{ sc.img.none }}" hint-placeholder-val="{{ true }}"><div data-img-placeholder="1" style="height:100%;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:8px;padding:16px;box-sizing:border-box;outline:1.5px dashed #C4C4C4;outline-offset:-10px;color:#9A9A9A;font-family:'Inter',sans-serif;font-size:13px;line-height:1.35;text-align:center;"><svg aria-hidden="true" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="18" height="18" rx="2"></rect><circle cx="8.5" cy="8.5" r="1.5"></circle><path d="m21 15-5-5L5 21"></path></svg><span>{{ sc.img.label }}</span></div></sc-if></div></div><sc-if value="{{ sc.tall }}" hint-placeholder-val="{{ false }}"><span aria-hidden="true" style="align-self:center;display:inline-flex;align-items:center;gap:6px;padding:7px 12px;border-radius:999px;background:#FFFFFF;box-shadow:0 0 0 1px #E2E2E2;color:#555555;font-family:'Inter',sans-serif;font-size:12px;line-height:1;white-space:nowrap;"><svg width="12" height="12" viewBox="0 0 12 12" fill="none"><path d="M6 1.5v9M2.5 7 6 10.5 9.5 7" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"></path></svg>Scroll the screen</span></sc-if>
+                        </div>
+                      </sc-for>
+                    </div>
+                  </div>
+                  <button type="button" onClick="{{ car.prev }}" aria-label="Show previous {{ car.name }}" style="position:absolute;top:50%;transform:translateY(-50%);width:40px;height:40px;border-radius:50%;border:0;padding:0;align-items:center;justify-content:center;background:#8F8F8F;color:#FFFFFF;cursor:pointer;left:clamp(12px,2vw,28px);display:{{ car.prevDisp }};" style-hover="background:#5F5F5F;" style-focus="outline:2px solid #111111;outline-offset:3px;"><svg aria-hidden="true" width="16" height="16" viewBox="0 0 16 16" fill="none"><path d="M10 3L5 8l5 5" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"></path></svg></button>
+                  <button type="button" onClick="{{ car.next }}" aria-label="Show more {{ car.name }}" style="position:absolute;top:50%;transform:translateY(-50%);width:40px;height:40px;border-radius:50%;border:0;padding:0;align-items:center;justify-content:center;background:#8F8F8F;color:#FFFFFF;cursor:pointer;right:clamp(12px,2vw,28px);display:{{ car.nextDisp }};" style-hover="background:#5F5F5F;" style-focus="outline:2px solid #111111;outline-offset:3px;"><svg aria-hidden="true" width="16" height="16" viewBox="0 0 16 16" fill="none"><path d="M6 3l5 5-5 5" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"></path></svg></button>
+                </div>
+              </sc-for>
+            </div>
+          </sc-if>
+
+          <sc-if value="{{ sec.isForward }}" hint-placeholder-val="{{ false }}">
+            <div data-reveal="1" style="padding-left:clamp(0px,4.5vw,80px);padding-right:clamp(0px,4.5vw,80px);box-sizing:border-box;margin-top:36px;display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,240px),1fr));gap:16px;">
+              <sc-for list="{{ sec.cards }}" as="c" hint-placeholder-count="3"><div style="min-height:clamp(140px,18vw,240px);padding:24px;border-radius:14px;background:#F3F3F3;box-sizing:border-box;font-family:'Inter',sans-serif;font-size:18px;letter-spacing:-0.01em;line-height:1.45;color:#333333;">{{ c.t }}</div></sc-for>
+            </div>
+          </sc-if>
+        </section>
+      </sc-for>
+
+      <div style="max-width:1360px;margin:0 auto;padding-left:clamp(16px,2.5vw,40px);padding-right:clamp(16px,2.5vw,40px);box-sizing:border-box;padding-top:clamp(96px,14vh,160px);">
+        <div style="padding-left:clamp(0px,4.5vw,80px);padding-right:clamp(0px,4.5vw,80px);box-sizing:border-box;display:flex;flex-wrap:wrap;gap:24px clamp(32px,6vw,96px);margin-left:calc(0px - {{ csIndexPad }});">
+          <sc-if value="{{ cs.hasPrev }}" hint-placeholder-val="{{ false }}"><button type="button" onClick="{{ csPrev }}" aria-label="Previous project: {{ cs.prev.title }}" style="flex:1 1 280px;min-width:0;display:flex;align-items:flex-end;gap:24px;padding:0 0 28px;border:0;background:transparent;color:#111111;cursor:pointer;font-family:'Inter',sans-serif;justify-content:flex-start;text-align:left;" style-hover="color:#555555;" style-focus="outline:2px solid #111111;outline-offset:6px;"><svg aria-hidden="true" width="48" height="16" viewBox="0 0 48 16" fill="none" style="flex:none;margin-bottom:6px;"><path d="M48 8H2M9 1L2 8l7 7" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"></path></svg><span style="display:flex;flex-direction:column;gap:8px;"><span style="font-size:12px;line-height:1.3;color:#8A8A8A;">Previous project</span><span style="font-family:'Bricolage Grotesque',sans-serif;font-weight:500;font-size:clamp(28px,2.6vw,36px);letter-spacing:-0.03em;line-height:1.1;">{{ cs.prev.title }}</span></span></button></sc-if>
+          <sc-if value="{{ cs.hasNext }}" hint-placeholder-val="{{ true }}"><button type="button" onClick="{{ csNext }}" aria-label="Next project: {{ cs.next.title }}" style="flex:1 1 280px;min-width:0;display:flex;align-items:flex-end;gap:24px;padding:0 0 28px;border:0;background:transparent;color:#111111;cursor:pointer;font-family:'Inter',sans-serif;justify-content:{{ cs.nextJustify }};text-align:{{ cs.nextAlign }};" style-hover="color:#555555;" style-focus="outline:2px solid #111111;outline-offset:6px;"><span style="display:flex;flex-direction:column;gap:8px;"><span style="font-size:12px;line-height:1.3;color:#8A8A8A;">Next project</span><span style="font-family:'Bricolage Grotesque',sans-serif;font-weight:500;font-size:clamp(28px,2.6vw,36px);letter-spacing:-0.03em;line-height:1.1;">{{ cs.next.title }}</span></span><svg aria-hidden="true" width="48" height="16" viewBox="0 0 48 16" fill="none" style="flex:none;margin-bottom:6px;"><path d="M0 8h46M39 1l7 7-7 7" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"></path></svg></button></sc-if>
+        </div>
+      </div>
+      <footer style="width:calc(100% + {{ csIndexPad }});margin-left:calc(0px - {{ csIndexPad }});padding:clamp(56px,9vh,96px) 0 clamp(48px,8vh,80px);border-radius:20px 20px 0 0;background:#000000;font-family:'Inter',sans-serif;">
+        <div style="max-width:1360px;margin:0 auto;padding-left:clamp(16px,2.5vw,40px);padding-right:clamp(16px,2.5vw,40px);box-sizing:border-box;">
+          <div style="padding-left:clamp(0px,4.5vw,80px);padding-right:clamp(0px,4.5vw,80px);box-sizing:border-box;display:flex;flex-direction:column;">
+            <p style="margin:0;font-family:'Bricolage Grotesque',sans-serif;font-weight:500;font-size:clamp(44px,5.4vw,80px);letter-spacing:-0.045em;line-height:1.05;color:#F5F5F5;">Let’s talk.</p>
+            <p style="margin:0;font-family:'Bricolage Grotesque',sans-serif;font-weight:400;font-size:clamp(32px,4.4vw,64px);letter-spacing:-0.035em;line-height:1.15;color:#BDBDBD;">Connect, Collaborate or just say hello</p>
+            <ul style="margin:clamp(96px,18vh,200px) 0 0;padding:0;list-style:none;display:flex;flex-wrap:wrap;gap:12px clamp(28px,5vw,80px);">
+              <sc-for list="{{ csLinks }}" as="l" hint-placeholder-count="4"><li><a href="{{ l.href }}" target="{{ l.target }}" rel="noopener" aria-label="{{ l.aria }}" style="font-weight:400;font-size:clamp(28px,3.2vw,44px);letter-spacing:-0.03em;line-height:1.1;color:#BDBDBD;text-decoration:none;transition:color 0.2s ease;" style-hover="color:#FFFFFF;" style-focus="outline:2px solid #FFFFFF;outline-offset:4px;">{{ l.label }}</a></li></sc-for>
+            </ul>
+          </div>
+        </div>
+      </footer>
+    </article>
+  </div>
+</sc-if>
+
+<div aria-live="polite" style="position:fixed;width:1px;height:1px;overflow:hidden;clip-path:inset(50%);">{{ liveText }}</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script="" data-props="{&quot;resumeUrl&quot;:{&quot;editor&quot;:&quot;text&quot;,&quot;default&quot;:&quot;https://drive.google.com/file/d/1FEqy9X0XvOy43KN_oCbHgqqqBMacPKVa/view?usp=sharing&quot;,&quot;tsType&quot;:&quot;string&quot;,&quot;section&quot;:&quot;Links&quot;},&quot;email&quot;:{&quot;editor&quot;:&quot;text&quot;,&quot;default&quot;:&quot;shrutitomar2916@gmail.com&quot;,&quot;tsType&quot;:&quot;string&quot;,&quot;section&quot;:&quot;Links&quot;},&quot;linkedinUrl&quot;:{&quot;editor&quot;:&quot;text&quot;,&quot;default&quot;:&quot;https://www.linkedin.com/in/shrutitomar29/&quot;,&quot;tsType&quot;:&quot;string&quot;,&quot;section&quot;:&quot;Links&quot;},&quot;githubUrl&quot;:{&quot;editor&quot;:&quot;text&quot;,&quot;default&quot;:&quot;https://github.com/ShrutiTomar02&quot;,&quot;tsType&quot;:&quot;string&quot;,&quot;section&quot;:&quot;Links&quot;},&quot;behanceUrl&quot;:{&quot;editor&quot;:&quot;text&quot;,&quot;default&quot;:&quot;https://www.behance.net/shrutitomar02&quot;,&quot;tsType&quot;:&quot;string&quot;,&quot;section&quot;:&quot;Links&quot;},&quot;video1Url&quot;:{&quot;editor&quot;:&quot;text&quot;,&quot;default&quot;:&quot;https://www.youtube.com/watch?v=Wj3ZcW-5JXc&amp;t=2s&quot;,&quot;tsType&quot;:&quot;string&quot;,&quot;section&quot;:&quot;TV&quot;},&quot;video1Title&quot;:{&quot;editor&quot;:&quot;text&quot;,&quot;default&quot;:&quot;&quot;,&quot;tsType&quot;:&quot;string&quot;,&quot;section&quot;:&quot;TV&quot;},&quot;video2Url&quot;:{&quot;editor&quot;:&quot;text&quot;,&quot;default&quot;:&quot;https://www.youtube.com/watch?v=1baVt4UrP3k&quot;,&quot;tsType&quot;:&quot;string&quot;,&quot;section&quot;:&quot;TV&quot;},&quot;video2Title&quot;:{&quot;editor&quot;:&quot;text&quot;,&quot;default&quot;:&quot;&quot;,&quot;tsType&quot;:&quot;string&quot;,&quot;section&quot;:&quot;TV&quot;},&quot;video3Url&quot;:{&quot;editor&quot;:&quot;text&quot;,&quot;default&quot;:&quot;https://www.youtube.com/watch?v=HNZnQYwnKAE&amp;t=2s&quot;,&quot;tsType&quot;:&quot;string&quot;,&quot;section&quot;:&quot;TV&quot;},&quot;video3Title&quot;:{&quot;editor&quot;:&quot;text&quot;,&quot;default&quot;:&quot;&quot;,&quot;tsType&quot;:&quot;string&quot;,&quot;section&quot;:&quot;TV&quot;},&quot;shelfPhotoUrl&quot;:{&quot;editor&quot;:&quot;text&quot;,&quot;default&quot;:&quot;&quot;,&quot;tsType&quot;:&quot;string&quot;,&quot;section&quot;:&quot;Shelf&quot;},&quot;albumSpotify1&quot;:{&quot;editor&quot;:&quot;text&quot;,&quot;default&quot;:&quot;https://open.spotify.com/album/151w1FgRZfnKZA9FEcg9Z3&quot;,&quot;tsType&quot;:&quot;string&quot;,&quot;section&quot;:&quot;Shelf&quot;},&quot;albumSpotify2&quot;:{&quot;editor&quot;:&quot;text&quot;,&quot;default&quot;:&quot;https://open.spotify.com/playlist/1tKJmeA9o3wuyMSvlUh7Ig&quot;,&quot;tsType&quot;:&quot;string&quot;,&quot;section&quot;:&quot;Shelf&quot;},&quot;albumSpotify3&quot;:{&quot;editor&quot;:&quot;text&quot;,&quot;default&quot;:&quot;https://open.spotify.com/track/5jgFfDIR6FR0gvlA56Nakr&quot;,&quot;tsType&quot;:&quot;string&quot;,&quot;section&quot;:&quot;Shelf&quot;},&quot;albumAudio1&quot;:{&quot;editor&quot;:&quot;text&quot;,&quot;default&quot;:&quot;&quot;,&quot;tsType&quot;:&quot;string&quot;,&quot;section&quot;:&quot;Shelf&quot;},&quot;albumAudio2&quot;:{&quot;editor&quot;:&quot;text&quot;,&quot;default&quot;:&quot;&quot;,&quot;tsType&quot;:&quot;string&quot;,&quot;section&quot;:&quot;Shelf&quot;},&quot;albumAudio3&quot;:{&quot;editor&quot;:&quot;text&quot;,&quot;default&quot;:&quot;&quot;,&quot;tsType&quot;:&quot;string&quot;,&quot;section&quot;:&quot;Shelf&quot;}}">
+class Component extends DCLogic {
+  state = { loading: true, mode: 'gate', prompt: null, dialog: null, toast: null, playing: false, ended: false, line: '', cc: false, narrate: false, muted: false, help: false, overlay: null, open: null, openFrom: null, pIdx: 0, time: 'morning', noGL: false, touch: false, narrow: false, goOpen: false, interest: 0, aboutKicker: '', deskOn: false, visited: false, live: '' };
+  canvasRef = React.createRef(); deskRef = React.createRef(); tvRef = React.createRef(); ytHostRef = React.createRef(); csRef = React.createRef(); csProgRef = React.createRef();
+  PROJECTS = [
+    { slug: 'arth', title: 'Arth', subtitle: 'AI powered Mutual Investment App', year: '2026', summary: 'A concept focused on simplifying mutual fund investing and making financial decisions easier to understand.', category: 'Personal Project', bg: '#3f229e', bar: 'rgba(63,34,158,0.88)', panel: '#4b2db0', ink: '#ffffff', sub: '#d9d0ff', line: 'rgba(255,255,255,0.3)', thumb: '#5b3fd0' },
+    { slug: 'propvr-website', title: 'PropVR Website', subtitle: 'Product website redesign', year: '2026', summary: 'A website redesign focused on presenting products and digital experiences clearly.', category: 'Product Design', bg: '#16171b', bar: 'rgba(22,23,27,0.88)', panel: '#22232a', ink: '#f4efe6', sub: '#cdbf9f', line: 'rgba(244,239,230,0.22)', thumb: '#1d1e23' },
+    { slug: 'hologram', title: 'Hologram', subtitle: 'Interactive 3D Real Estate Presentation', year: '2026', summary: 'Designing an interactive touchscreen experience to control and explore immersive holographic property presentations.', category: 'Internal Product · Project Showcase', bg: '#ece5da', bar: 'rgba(236,229,218,0.9)', panel: '#e0d6c7', ink: '#1a1714', sub: '#5e4c3a', line: 'rgba(26,23,20,0.22)', thumb: '#c9a982' },
+    { slug: 'dial-design', title: 'Kiosk Experience', subtitle: 'Interactive Kiosk with Physical Dial Controls', year: '2025', summary: 'An interactive real estate experience that brings virtual spaces to life through physical dial controls.', category: 'Internal Product · Project Showcase', bg: '#1b1a19', bar: 'rgba(27,26,25,0.88)', panel: '#2c2a28', ink: '#efebe5', sub: '#bdb5a8', line: 'rgba(239,235,229,0.22)', thumb: '#2c2a28' }
+  ];
+  TIMES = [['morning', 'Morning'], ['foggy', 'Foggy'], ['rainy', 'Rainy'], ['sunset', 'Sunset'], ['night', 'Night']];
+  PROMPTS = {
+    sofa: ['Have a seat', ''], desk: ['Explore my work', 'Where the ideas become interfaces.'],
+    guitar: ['Look at the guitar', ''], shelf: ['Look at the shelf', 'Books, music and a few favourite things'], door: ['Head out', 'Leaving? Let’s keep in touch.']
+  };
+  INTERESTS = ['Me', 'Guitar', 'Cricket', 'Reading', 'Coffee', 'Exploring new places'];
+
+  componentDidMount() {
+    this.baseTitle = (document.title && !/Case study/.test(document.title)) ? document.title : 'Shruti Tomar — Portfolio'; window.addEventListener('popstate', this.onRoute); window.addEventListener('hashchange', this.onRoute); setTimeout(() => this.onRoute(), 0);
+    const mm = q => window.matchMedia && window.matchMedia(q).matches;
+    this.reduce = mm('(prefers-reduced-motion: reduce)');
+    let time = null, visited = false, muted = false;
+    try { time = localStorage.getItem('shruti-apt-time'); visited = localStorage.getItem('shruti-apt-visited') === '1'; muted = localStorage.getItem('shruti-apt-muted') === '1'; } catch (e) {}
+    if (!this.TIMES.find(t => t[0] === time)) { const h = new Date().getHours(); time = h >= 19 || h < 5 ? 'night' : h >= 17 ? 'sunset' : 'morning'; }
+    this.setState({ time, visited, muted, touch: mm('(pointer: coarse)') || ('ontouchstart' in window && navigator.maxTouchPoints > 0), narrow: window.innerWidth < 760, vw: window.innerWidth, vh: window.innerHeight });
+    this.onResize = () => { const w = window.innerWidth, hh = window.innerHeight; if (w !== this.state.vw || hh !== this.state.vh) this.setState({ narrow: w < 760, vw: w, vh: hh }); };
+    window.addEventListener('orientationchange', () => setTimeout(this.onResize, 250));
+    window.addEventListener('resize', this.onResize);
+    this.onKey = e => this.key(e); window.addEventListener('keydown', this.onKey);
+    this.onLeave = () => { this.stopAudio(); this.destroyYT(); };
+    this.onWinBlur = () => setTimeout(() => { const a = document.activeElement; if (this.yt && a && a.tagName === 'IFRAME' && this.ytHostRef.current && this.ytHostRef.current.contains(a)) { try { a.blur(); window.focus(); } catch (e) {} } }, 0);
+    window.addEventListener('blur', this.onWinBlur); window.addEventListener('pagehide', this.onLeave); window.addEventListener('beforeunload', this.onLeave);
+    this.onWF = () => this.setState({ docFocus: true }); this.onWB = () => this.setState({ docFocus: false });
+    window.addEventListener('focus', this.onWF); window.addEventListener('blur', this.onWB);
+    this.setState({ docFocus: document.hasFocus() });
+    this.init(time);
+  }
+  componentWillUnmount() {
+    window.removeEventListener('popstate', this.onRoute); window.removeEventListener('hashchange', this.onRoute);
+    this.stopAudio(); this.destroyYT(); window.removeEventListener('pagehide', this.onLeave); window.removeEventListener('blur', this.onWinBlur); if (this.wloop) cancelAnimationFrame(this.wloop); clearTimeout(this.snapT); window.removeEventListener('beforeunload', this.onLeave);
+    this.dead = true; window.removeEventListener('resize', this.onResize); window.removeEventListener('focus', this.onWF); window.removeEventListener('blur', this.onWB); window.removeEventListener('keydown', this.onKey);
+    clearTimeout(this.dT); clearTimeout(this.tT); if (window.speechSynthesis) speechSynthesis.cancel();
+    if (this.scene) this.scene.dispose();
+  }
+  async init(time) {
+    try {
+      if (document.fonts) await Promise.race([Promise.all([document.fonts.load("600 40px 'Bricolage Grotesque'"), document.fonts.load("500 20px 'Space Grotesk'")]), new Promise(r => setTimeout(r, 2500))]);
+      let create = window.createApartment;
+      if (!create) create = await new Promise(res => { const done = () => res(window.createApartment); window.addEventListener('apartment-module-ready', done, { once: true }); setTimeout(done, 8000); });
+      if (!create) throw new Error('scene script failed to load');
+      const mod = { createApartment: create };
+      if (this.dead || !this.canvasRef.current) return;
+      const sc = await Promise.race([mod.createApartment(this.canvasRef.current, {
+        reduce: this.reduce,
+        onReady: () => this.setState({ loading: false }),
+        onState: m => this.onMode(m),
+        onPrompt: id => this.setState({ prompt: id }),
+        onInteract: id => this.interact(id),
+        onLamp: () => this.forceUpdate(),
+        onFar: id => this.showToast('Walk closer to use that, or pick it from “Go to”.'),
+        onSound: k => this.sound(k),
+        onMovie: m => this.setState({ playing: m.playing, ended: m.ended }, () => { if (m.ended) { this.markVisited(); this.focusSoon('[data-first]'); } }),
+        onMovieLine: (i, text, k) => this.onLine(text, k),
+        onScreenRect: r => this.placeDesk(r),
+        onTvRect: r => this.placeTv(r),
+        onTv: on => { if (on) this.setState({ tvOn: true, tvSel: null, tvState: 'menu', tvNote: '' }); else this.tvClose(); },
+        onBook: (i, bk) => this.setState({ book: bk ? { t: bk.t, a: bk.a } : null }),
+        onAlbum: (ev, i, al) => this.onAlbum(ev, i, al),
+        onShelfTip: t => this.showToast(t),
+        onShelfHover: h => this.placeTip(h),
+        onPhoto: st => { if (st === 'error') console.warn('Shelf photo could not be loaded:', this.props.shelfPhotoUrl); }
+      }), new Promise((_, rej) => setTimeout(() => rej(new Error('3D engine timed out')), 12000))]);
+      if (!sc) throw new Error('no webgl');
+      this.scene = sc; window.__apartment = sc; sc.setTime(this.state.time || time, true); sc.refreshText(); sc.setPhoto(this.photoSrc());
+      const m = {}; document.querySelectorAll('[data-spot]').forEach(el => { m[el.getAttribute('data-spot')] = el; }); sc.setLabels(m);
+    } catch (e) { console.warn('Apartment 3D unavailable', e); this.setState({ noGL: true, loading: false, overlay: 'classic' }); }
+  }
+  markVisited() { try { localStorage.setItem('shruti-apt-visited', '1'); } catch (e) {} }
+  focusSoon(sel) { setTimeout(() => { const el = document.querySelector(sel); if (el) el.focus({ preventScroll: true }); }, 60); }
+
+  onMode(m) {
+    const prev = this.state.mode;
+    const patch = { mode: m };
+    if (m !== 'explore') patch.prompt = null;
+    // Safety net: whenever the 3D scene settles back into plain exploration
+    // with nothing else covering the screen, make sure clicking/dragging is
+    // actually enabled. Several different flows (closing a case study,
+    // closing an overlay, leaving the desk/shelf/TV) are each responsible for
+    // re-enabling input on their own way out, and if any one of them misses a
+    // case, every hotspot in the apartment silently stops responding until a
+    // reload. This re-asserts the correct state every time we land back in
+    // 'explore', regardless of which path got us here.
+    if (m === 'explore' && !this.state.open && !this.state.overlay && this.scene) this.scene.setInput(true);
+    if (m === 'deskEnter' || m === 'deskExit') { this.placeTip(null); }
+    if (m === 'deskEnter' || m === 'deskExit') { patch.open = null; this.caseFocus = null; const ae = document.activeElement; if (ae && ae !== document.body && ae.blur) ae.blur(); }
+    if (m === 'desk') this.deskReadyAt = performance.now();
+    if (m === 'deskEnter') { this.workCur = this.workTarget = 0; this.wVel = 0; patch.pIdx = 0; requestAnimationFrame(() => this.applyCards()); }
+    if (m === 'desk') { patch.deskOn = true; this.markVisited(); this.focusSoon('[data-desk-first]'); }
+    if (prev === 'desk' && m !== 'desk') patch.deskOn = false;
+    if (m !== 'shelf') { patch.book = null; this.placeTip(null); }
+    if (m === 'toShelf' || m === 'shelf') { patch.help = false; patch.goOpen = false; patch.dialog = null; }
+    if (m === 'explore' && !this.greeted) {
+      this.greeted = true;
+      patch.dialog = this.WELCOME; patch.dialogSub = this.WELCOME_SUB;
+      clearTimeout(this.dT);
+      this.dT = setTimeout(() => this.nudgeSofa(), 9000);
+      let seen = false; try { seen = localStorage.getItem('shruti-apt-controls') === '1'; } catch (e) {}
+      if (!seen) { patch.help = true; try { localStorage.setItem('shruti-apt-controls', '1'); } catch (e) {} }
+    }
+    if (['sitting', 'seated', 'toDesk', 'deskArrive', 'deskEnter'].includes(m)) { patch.dialog = null; patch.help = false; patch.goOpen = false; }
+    if (m === 'gate') { this.greeted = false; patch.dialog = null; patch.ended = false; patch.playing = false; }
+    if (m === 'seated') patch.live = 'Seated. The TV is turning on. Pick a show, or press Escape to turn it off.';
+    if (prev === 'seated' && m !== 'seated') this.tvClose();
+    if (m === 'standing' && window.speechSynthesis) speechSynthesis.cancel();
+    this.setState(patch);
+  }
+  onLine(text, k) {
+    this.setState({ line: text, live: text });
+    if (this.state.narrate && !this.state.muted && window.speechSynthesis && k !== 'end') {
+      speechSynthesis.cancel(); const u = new SpeechSynthesisUtterance(text); u.rate = 0.98; u.pitch = 1.05; speechSynthesis.speak(u);
+    }
+  }
+  WELCOME = 'Hey there, nice to meet you!';
+  WELCOME_SUB = 'Feel free to explore the space and make yourself comfortable. The snacks are imaginary, but you’re always welcome!';
+  nudgeSofa() {
+    clearTimeout(this.dT);
+    if (this.state.dialog === this.WELCOME) this.setState({ dialog: null, dialogSub: null });
+    this.dT = setTimeout(() => {
+      if (this.state.mode !== 'explore' || this.state.overlay || this.state.prompt === 'sofa') return;
+    }, 600);
+  }
+  ytId(url) { const m = /(?:youtube\.com\/(?:watch\?(?:.*&)?v=|embed\/|shorts\/|live\/)|youtu\.be\/)([A-Za-z0-9_-]{11})/.exec((url || '') + ''); return m ? m[1] : null; }
+  videos() {
+    const DEF = ['https://www.youtube.com/watch?v=Wj3ZcW-5JXc&t=2s', 'https://www.youtube.com/watch?v=1baVt4UrP3k', 'https://www.youtube.com/watch?v=HNZnQYwnKAE&t=2s'];
+    return [1, 2, 3].map(n => { const url = ((this.props['video' + n + 'Url'] || DEF[n - 1]) + '').trim(), id = this.ytId(url), t = ((this.props['video' + n + 'Title'] || '') + '').trim(); const tm = /[?&#](?:t|start)=(?:(\d+)h)?(?:(\d+)m)?(?:(\d+)s?)?/.exec(url), start = tm ? (+(tm[1] || 0)) * 3600 + (+(tm[2] || 0)) * 60 + (+(tm[3] || 0)) : 0;
+      return { n, url, id, start, title: t || (id && (this.state.ytTitles || {})[id]) || (id ? 'Video ' + n : 'Add YouTube link ' + n) }; });
+  }
+  fetchTitles() {
+    this.videos().forEach(v => { if (!v.id || (this.state.ytTitles || {})[v.id] || (this.ytAsked || (this.ytAsked = {}))[v.id]) return; this.ytAsked[v.id] = 1;
+      fetch('https://www.youtube.com/oembed?format=json&url=' + encodeURIComponent('https://www.youtube.com/watch?v=' + v.id)).then(r => r.ok ? r.json() : null).then(j => { if (j && j.title && !this.dead) this.setState(s => ({ ytTitles: { ...(s.ytTitles || {}), [v.id]: j.title } })); }).catch(() => {}); });
+  }
+  loadYT() {
+    if (window.YT && window.YT.Player) return Promise.resolve(window.YT);
+    if (window.__ytApi) return window.__ytApi;
+    window.__ytApi = new Promise((res, rej) => {
+      const prev = window.onYouTubeIframeAPIReady; window.onYouTubeIframeAPIReady = () => { try { prev && prev(); } catch (e) {} res(window.YT); };
+      const sc = document.createElement('script'); sc.src = 'https://www.youtube.com/iframe_api'; sc.async = true; sc.onerror = () => { window.__ytApi = null; rej(new Error('load')); }; document.head.appendChild(sc);
+      setTimeout(() => { if (!(window.YT && window.YT.Player)) { window.__ytApi = null; rej(new Error('timeout')); } }, 12000);
+    });
+    return window.__ytApi;
+  }
+  destroyYT() { clearTimeout(this.ytWD); this.yt = null; this.ytFor = null; this.ytFrame = null; const host = this.ytHostRef.current; if (host) host.innerHTML = ''; }
+  tvPick(v) {
+    if (!v.id || this.state.mode !== 'seated') return;
+    this.destroyYT(); const tok = {}; this.ytFor = tok;
+    this.setState({ tvSel: v.n, tvState: 'watching', tvNote: '', live: 'Playing ' + v.title });
+    setTimeout(() => {
+      if (this.ytFor !== tok) return;
+      const host = this.ytHostRef.current; if (!host) return;
+      host.innerHTML = '';
+      const fr = document.createElement('iframe');
+      fr.style.cssText = 'width:100%;height:100%;border:0;';
+      fr.setAttribute('allow', 'autoplay; encrypted-media; picture-in-picture; fullscreen');
+      fr.setAttribute('allowfullscreen', '');
+      fr.referrerPolicy = 'strict-origin-when-cross-origin';
+      fr.src = 'https://www.youtube-nocookie.com/embed/' + v.id + '?autoplay=1&playsinline=1&rel=0&modestbranding=1' + (v.start ? '&start=' + v.start : '');
+      host.appendChild(fr);
+      this.ytFrame = fr;
+    }, 0);
+  }
+  tvClose() { this.destroyYT(); if (this.state.tvOn || this.state.tvState) this.setState({ tvOn: false, tvSel: null, tvState: null, tvNote: '' }); this.placeTv(null); }
+  tvOffNow() { this.tvClose(); if (this.scene) this.scene.stand(); }
+  placeTv(r) {
+    const el = this.tvRef.current; if (!el) return;
+    if (!r) { el.style.width = '0px'; el.style.height = '0px'; el.style.transform = 'none'; return; }
+    const w = 640, hh = 360;
+    el.style.borderRadius = '0'; el.style.left = '0px'; el.style.top = '0px'; el.style.width = w + 'px'; el.style.height = hh + 'px'; el.style.transformOrigin = '0 0';
+    el.style.fontSize = Math.max(8, w / 46).toFixed(2) + 'px';
+    el.style.transform = r.pts ? this.quadMatrix(w, hh, r.pts) : 'translate(' + r.x + 'px,' + r.y + 'px)';
+  }
+  quadMatrix(w, h, p) {
+    const adj = m => [m[4] * m[8] - m[5] * m[7], m[2] * m[7] - m[1] * m[8], m[1] * m[5] - m[2] * m[4], m[5] * m[6] - m[3] * m[8], m[0] * m[8] - m[2] * m[6], m[2] * m[3] - m[0] * m[5], m[3] * m[7] - m[4] * m[6], m[1] * m[6] - m[0] * m[7], m[0] * m[4] - m[1] * m[3]];
+    const mm = (a, b) => { const c = []; for (let i = 0; i < 3; i++) for (let j = 0; j < 3; j++) { let s = 0; for (let k = 0; k < 3; k++) s += a[3 * i + k] * b[3 * k + j]; c[3 * i + j] = s; } return c; };
+    const mv = (m, v) => [m[0] * v[0] + m[1] * v[1] + m[2] * v[2], m[3] * v[0] + m[4] * v[1] + m[5] * v[2], m[6] * v[0] + m[7] * v[1] + m[8] * v[2]];
+    const basis = (q) => { const m = [q[0][0], q[1][0], q[2][0], q[0][1], q[1][1], q[2][1], 1, 1, 1], v = mv(adj(m), [q[3][0], q[3][1], 1]); return mm(m, [v[0], 0, 0, 0, v[1], 0, 0, 0, v[2]]); };
+    const src = basis([[0, 0], [w, 0], [0, h], [w, h]]), dst = basis([p[0], p[1], p[2], p[3]]);
+    const t = mm(dst, adj(src)), n = t.map(x => x / t[8]);
+    return 'matrix3d(' + [n[0], n[3], 0, n[6], n[1], n[4], 0, n[7], 0, 0, 1, 0, n[2], n[5], 0, n[8]].map(x => +x.toFixed(9)).join(',') + ')';
+  }
+  placeDesk(r) {
+    const el = this.deskRef.current; if (!el) return;
+    const W = window.innerWidth, H = window.innerHeight;
+    el.style.left = '0px'; el.style.top = '0px'; el.style.width = W + 'px'; el.style.height = H + 'px';
+    el.style.fontSize = Math.max(14, Math.min(19, W / 76)).toFixed(2) + 'px';
+    if (this.drumW !== W || this.drumH !== H) { this.drumW = W; this.drumH = H; requestAnimationFrame(() => this.applyCards()); }
+    if (!r) { el.style.opacity = '0'; el.style.pointerEvents = 'none'; el.style.transform = 'none'; return; }
+    const cx = r.x + r.w / 2, cy = r.y + r.h / 2, sc = Math.min(r.w / W, r.h / H);
+    if (r.phase === 'desk' || sc >= 1) { el.style.transform = 'none'; el.style.borderRadius = '0'; el.style.opacity = this.state.open ? '0' : '1'; el.style.pointerEvents = r.phase === 'desk' && !this.state.open ? 'auto' : 'none'; return; }
+    el.style.transformOrigin = '0 0';
+    el.style.transform = 'translate(' + (cx - W * sc / 2).toFixed(2) + 'px,' + (cy - H * sc / 2).toFixed(2) + 'px) scale(' + sc.toFixed(5) + ')';
+    el.style.borderRadius = (6 / sc).toFixed(1) + 'px';
+    el.style.opacity = Math.max(0, Math.min(1, (sc - 0.32) / 0.28)).toFixed(3);
+    el.style.pointerEvents = 'none';
+  }
+  photoSrc() { const u = ((this.props.shelfPhotoUrl || '') + '').trim(); if (u) return u; const im = document.querySelector('[data-shelf-photo]'); return im ? (im.currentSrc || im.src) : ''; }
+  componentDidUpdate(pp, ps) { this.fetchTitles(); if (ps && !ps.deskOn && this.state.deskOn) requestAnimationFrame(() => this.applyCards()); if (this.scene && pp.shelfPhotoUrl !== this.props.shelfPhotoUrl) this.scene.setPhoto(this.photoSrc()); }
+  tipRef = React.createRef();
+  placeTip(hv) { const el = this.tipRef.current; if (!el) return; if (!hv) { el.style.opacity = '0'; return; } el.textContent = hv.text; el.style.opacity = '1'; el.style.transform = 'translate(' + (hv.x + 14) + 'px,' + (hv.y + 16) + 'px)'; }
+  spotifyRef = React.createRef();
+  SPOTIFY = ['https://open.spotify.com/track/11hcBLPtbMp4aQI6zGQLub', 'https://open.spotify.com/track/399TZyrsuVXRx70hAPyC4u', 'https://open.spotify.com/track/5jgFfDIR6FR0gvlA56Nakr'];
+  spotifyUrl(i) { const p = this.props['albumSpotify' + (i + 1)]; return ((p == null || p === '' ? this.SPOTIFY[i] : p) + '').trim(); }
+  spotifyUri(i) { const m = /open\.spotify\.com\/(?:intl-[a-z-]+\/)?(track|album|playlist|episode)\/([A-Za-z0-9]+)/.exec(this.spotifyUrl(i)); return m ? 'spotify:' + m[1] + ':' + m[2] : null; }
+  loadSpotifyApi() {
+    if (window.__spApi) return window.__spApi;
+    window.__spApi = new Promise((res, rej) => {
+      if (window.__spIFrameApi) return res(window.__spIFrameApi);
+      const prev = window.onSpotifyIframeApiReady;
+      window.onSpotifyIframeApiReady = api => { window.__spIFrameApi = api; try { prev && prev(api); } catch (e) {} res(api); };
+      const sc = document.createElement('script'); sc.src = 'https://open.spotify.com/embed/iframe-api/v1'; sc.async = true;
+      sc.onerror = () => { window.__spApi = null; rej(new Error('load')); }; document.head.appendChild(sc);
+      setTimeout(() => { if (!window.__spIFrameApi) { window.__spApi = null; rej(new Error('timeout')); } }, 12000);
+    });
+    return window.__spApi;
+  }
+  stopSpotify() { clearTimeout(this.spWD); clearTimeout(this.spRetry); if (this.spCtl) { try { this.spCtl.pause(); } catch (e) {} } this.spOn = false; this.spUri = null; this.spWant = false; this.spStarted = false; }
+  ensureSpotify(uri) {
+    this.spOn = true; this.spUri = uri;
+    return this.loadSpotifyApi().then(api => {
+      if (!this.spOn || this.spUri !== uri) return;
+      if (this.spCtl) { if (this.spLoaded !== uri) { this.spLoaded = uri; this.spReady = false; this.spCtl.loadUri(uri); setTimeout(() => { if (this.spLoaded === uri) { this.spReady = true; if (this.spWant) this.spPlay(); } }, 900); } return; }
+      const host = this.spotifyRef.current; if (!host || this.spMaking) return; this.spMaking = true;
+      host.innerHTML = ''; const el = document.createElement('div'); host.appendChild(el);
+      api.createController(el, { uri, width: '100%', height: 80 }, ctl => {
+        this.spCtl = ctl; this.spLoaded = uri; this.spMaking = false;
+        const fr = host.querySelector('iframe'); if (fr) { const al = fr.getAttribute('allow') || ''; if (!/autoplay/.test(al)) fr.setAttribute('allow', (al ? al + '; ' : '') + 'autoplay; encrypted-media'); }
+        ctl.addListener('ready', () => { this.spReady = true; if (this.spOn && this.spWant) this.spPlay(); });
+        ctl.addListener('playback_update', e => {
+          if (!this.spOn || !this.state.music) return; const d = e.data || {}; if (d.isBuffering) return;
+          if (!d.isPaused && d.position > 0) { this.spStarted = true; clearTimeout(this.spWD); if (this.state.musicState !== 'playing' || this.state.musicNote) this.setPlay('playing'); }
+          else if (d.isPaused && this.spStarted && this.state.musicState === 'playing') this.setPlay('paused');
+        });
+      });
+    }).catch(() => { if (this.spUri === uri) this.setPlay('unavailable', 'Spotify couldn’t be loaded. Check your connection, or use the link below.'); });
+  }
+  spPlay() {
+    if (!this.spCtl || !this.spOn) return; this.spWant = false;
+    try { this.spCtl.play(); } catch (e) {}
+    clearTimeout(this.spRetry); this.spRetry = setTimeout(() => { if (this.spOn && !this.spStarted && this.spCtl) { try { this.spCtl.resume(); } catch (e) {} } }, 1600);
+  }
+  startSpotify(i, uri) {
+    this.spStarted = false; this.spWant = true; this.setPlay('loading', '');
+    clearTimeout(this.spWD); this.spWD = setTimeout(() => { if (this.spOn && this.spUri === uri && !this.spStarted) this.setPlay('blocked', 'Your browser held back autoplay. Press ▶ in the Spotify player once and the music will start.'); }, 6000);
+    this.ensureSpotify(uri).then(() => { if (this.spOn && this.spUri === uri && this.spReady && this.spWant) this.spPlay(); });
+  }
+  exitMusic() { this.stopAudio(); this.setState({ music: null }); this.setPlay('idle'); if (this.scene && this.scene.ejectAlbum) this.scene.ejectAlbum(); }
+  albumSrc(i) { return ((this.props['albumAudio' + (i + 1)] || '') + '').trim(); }
+  stopAudio() { this.stopSpotify(); if (this.audio) { try { this.audio.pause(); this.audio.removeAttribute('src'); this.audio.load(); } catch (e) {} this.audio = null; } }
+  setPlay(st, note) { this.setState({ musicState: st, musicNote: note || '' }); if (this.scene) this.scene.setPlayback(st === 'loading' || st === 'blocked' ? 'idle' : st); }
+  onAlbum(ev, i, al) {
+    if (ev === 'stop') { this.stopAudio(); this.setState({ music: null }); this.setPlay('idle'); return; }
+    if (ev === 'placing') { this.stopAudio(); this.setState({ music: { i, t: al.t, a: al.a, sw: al.bg } }); this.setPlay('loading'); const u = !this.albumSrc(i) && this.spotifyUri(i); if (u) { this.spStarted = false; this.ensureSpotify(u); } return; }
+    if (ev === 'placed') { this.startAudio(i); return; }
+    if (ev === 'toggle' && this.spOn && this.spCtl) { if (this.state.musicState === 'blocked' || !this.spStarted) this.spPlay(); else this.spCtl.togglePlay(); return; }
+    if (ev === 'toggle') { const a = this.audio; if (!a) { this.showToast('No audio file is connected for this album.'); return; } if (a.paused) a.play().then(() => { this.setPlay('playing'); this.showToast('Now playing'); }).catch(() => this.setPlay('paused', 'Your browser blocked playback. Press Resume.')); else { a.pause(); this.setPlay('paused'); this.showToast('Paused'); } }
+  }
+  startAudio(i) {
+    const src = this.albumSrc(i);
+    const uri = !src && this.spotifyUri(i); if (uri) { this.stopAudio(); this.startSpotify(i, uri); return; }
+    if (!src) { this.setPlay('unavailable', 'No audio connected yet. Add a licensed track in the albumAudio' + (i + 1) + ' setting.'); return; }
+    this.stopAudio(); const a = new Audio(); a.src = src; a.loop = true; a.muted = !!this.state.muted; this.audio = a;
+    a.onerror = () => { if (this.audio === a) this.setPlay('unavailable', 'The audio file could not be loaded.'); };
+    a.play().then(() => { if (this.audio === a) this.setPlay('playing'); }).catch(() => { if (this.audio === a) this.setPlay('paused', 'Your browser blocked playback. Press Resume.'); });
+  }
+  interact(id) {
+    const s = this.scene; if (!s) return;
+    if (id === 'sofa') s.sit();
+    else if (id === 'desk') s.toDesk();
+    else if (id === 'guitar') this.showToast('A little music between design sessions.');
+    else if (id === 'shelf') s.goTo('shelf');
+    else if (id === 'lamp' || id === 'lamp2' || id === 'lamp3') { s.toggleLamp(id); this.forceUpdate(); }
+    else if (id === 'door') this.openOverlay('contact');
+  }
+  showToast(t) { clearTimeout(this.tT); this.setState({ toast: t }); this.tT = setTimeout(() => this.setState({ toast: null }), 3800); }
+  openOverlay(o, kicker = '') {
+    this.lastFocus = document.activeElement;
+    this.setState({ overlay: o, aboutKicker: kicker, goOpen: false, help: false });
+    if (this.scene) { this.scene.setInput(false); if (this.state.playing) this.scene.pause(); }
+    this.focusSoon('[data-close]');
+  }
+  closeOverlay = () => {
+    if (this.state.noGL && this.state.overlay === 'classic') return;
+    this.setState({ overlay: null }); if (this.scene) this.scene.setInput(true);
+    const lf = this.lastFocus; if (lf && lf.focus) setTimeout(() => lf.focus({ preventScroll: true }), 0);
+  };
+  drumRef = React.createRef(); workCur = null; workTarget = null;
+  CARD_VIS = {"arth":["phone","radial-gradient(120% 80% at 70% 20%, #8f78ee 0%, rgba(143,120,238,0) 60%), linear-gradient(165deg,#5b3fd0 0%,#3f229e 55%,#7d68dc 100%)"],"propvr-website":["browser","radial-gradient(110% 70% at 80% 100%, rgba(183,159,120,0.35) 0%, rgba(183,159,120,0) 60%), linear-gradient(170deg,#1d1e23 0%,#121317 100%)"],"hologram":["tablet","radial-gradient(120% 80% at 20% 0%, #fbf7f0 0%, rgba(251,247,240,0) 60%), linear-gradient(170deg,#ece5da 0%,#d6cbbb 100%)"],"dial-design":["dial","radial-gradient(100% 70% at 50% 40%, #4a4643 0%, rgba(74,70,67,0) 70%), linear-gradient(170deg,#2c2a28 0%,#1b1a19 100%)"]};
+  stepP(dir) {
+    if (!dir) return;
+    if (this.workTarget == null) this.workTarget = this.workCur = this.state.pIdx;
+    this.workTarget += dir; this.setState({ pIdx: ((Math.round(this.workTarget) % 4) + 4) % 4 });
+    if (!this.wloop) this.wloop = requestAnimationFrame(() => this.workTick());
+  }
+  workTick() {
+    this.wloop = 0;
+    const now = performance.now(), dt = Math.min(0.05, Math.max(0.001, ((now - (this.wT || now)) / 1000) || 0.016)); this.wT = now;
+    const prev = this.workCur, d = this.workTarget - this.workCur;
+    this.workCur = Math.abs(d) < 0.0005 ? this.workTarget : this.workCur + d * (this.reduce ? 1 : 0.12);
+    const v = (this.workCur - prev) / dt;
+    this.wVel = (this.wVel || 0) + (v - (this.wVel || 0)) * 0.25;
+    if (this.workCur === this.workTarget && Math.abs(this.wVel) < 0.01) this.wVel = 0;
+    this.applyCards();
+    if (this.workCur !== this.workTarget || this.wVel) this.wloop = requestAnimationFrame(() => this.workTick());
+    else this.wT = 0;
+  }
+  carRef = React.createRef(); vpRef = React.createRef();
+  placeVP() {
+    const el = this.vpRef.current, cv = this.carRef.current, m = this.mouseP; if (!el) return;
+    const on = this.hoverCard != null && m && this.state.mode === 'desk' && !this.state.open && !this.state.touch;
+    if (!on) { el.style.opacity = '0'; return; }
+    let dark = true;
+    try { const dpr = cv.width / Math.max(1, cv.clientWidth), d = cv.getContext('2d').getImageData(Math.round(m.x * dpr), Math.round(m.y * dpr), 1, 1).data; dark = (0.2126 * d[0] + 0.7152 * d[1] + 0.0722 * d[2]) / 255 < 0.55; } catch (e) {}
+    el.style.background = dark ? '#F4EFE6' : '#171717'; el.style.color = dark ? '#171717' : '#F4EFE6';
+    el.style.transform = 'translate(' + (m.x + 18).toFixed(1) + 'px,' + (m.y + 14).toFixed(1) + 'px)';
+    el.style.opacity = '1';
+  }
+  applyCards() {
+    const drum = this.drumRef.current, cv = this.carRef.current, CR = window.CarouselRender; if (!drum || !cv || !CR) return;
+    if (this.workCur == null) this.workCur = this.workTarget = this.state.pIdx;
+    const W = drum.clientWidth, H = drum.clientHeight; if (!W || !H) return;
+    const dpr = Math.min(1.75, window.devicePixelRatio || 1), pw = Math.round(W * dpr), ph = Math.round(H * dpr);
+    if (cv.width !== pw || cv.height !== ph) { cv.width = pw; cv.height = ph; }
+    const ctx = cv.getContext('2d'); ctx.setTransform(1, 0, 0, 1, 0, 0); ctx.fillStyle = '#F4EFE6'; ctx.fillRect(0, 0, pw, ph);
+    const vel = this.reduce ? 0 : Math.max(-4, Math.min(4, this.wVel || 0));
+    const r = CR.draw(ctx, W, H, this.workCur, vel, { dpr, hover: this.hoverCard, titles: true });
+    this.placeVP();
+    const L = r.L, btns = drum.querySelectorAll('[data-card]'), tts = drum.querySelectorAll('[data-title]');
+    r.cards.forEach(g => {
+      const b = btns[g.i], t = tts[g.i]; if (!b || !t) return;
+      const a = Math.max(0, g.x0), e = Math.min(W, g.x1), on = g.vis && e - a > 24 && Math.abs(g.o) < 1.6;
+      b.style.left = a + 'px'; b.style.width = Math.max(0, e - a) + 'px'; b.style.top = g.top + 'px'; b.style.height = L.CH + 'px';
+      b.style.pointerEvents = on ? 'auto' : 'none'; b.tabIndex = on ? 0 : -1; b.style.visibility = on ? 'visible' : 'hidden';
+      const lb = CR.labelBox(L, g, vel), yr = drum.querySelectorAll('[data-year]')[g.i];
+      const tt = t.querySelector('[data-t]'), dd = t.querySelector('[data-d]');
+      tt.style.fontSize = L.titleSize.toFixed(1) + 'px'; dd.style.fontSize = L.descSize.toFixed(1) + 'px';
+      const asc = 0.8, base = lb.yl - lb.gap;
+      t.style.left = g.x0 + 'px'; t.style.top = base.toFixed(1) + 'px'; t.style.transformOrigin = '0 0'; t.style.transform = 'rotate(' + lb.angL.toFixed(4) + 'rad)';
+      tt.style.top = (-lb.dTitle - L.titleSize * asc).toFixed(1) + 'px'; dd.style.top = (-L.descSize * asc).toFixed(1) + 'px';
+      t.style.opacity = g.vis ? lb.al.toFixed(3) : '0';
+      if (yr) { yr.style.fontSize = L.descSize.toFixed(1) + 'px'; yr.style.left = g.x1 + 'px'; yr.style.top = (lb.yr - lb.gap).toFixed(1) + 'px'; yr.style.transformOrigin = '0 0'; yr.style.transform = 'rotate(' + lb.angR.toFixed(4) + 'rad) translate(-100%,' + (-lb.dTitle - L.descSize * asc).toFixed(1) + 'px)'; yr.style.opacity = g.vis ? lb.alR.toFixed(3) : '0'; }
+    });
+  }
+  wheelP(d) {
+    if (!d) return;
+    this.lastWheel = performance.now();
+    if (this.workTarget == null) this.workTarget = this.workCur = this.state.pIdx;
+    this.workTarget += Math.max(-1, Math.min(1, d / 380));
+    const p = ((Math.round(this.workTarget) % 4) + 4) % 4; if (p !== this.state.pIdx) this.setState({ pIdx: p });
+    if (!this.wloop) this.wloop = requestAnimationFrame(() => this.workTick());
+    clearTimeout(this.snapT);
+    this.snapT = setTimeout(() => { this.workTarget = Math.round(this.workTarget); if (!this.wloop) this.wloop = requestAnimationFrame(() => this.workTick()); }, 180);
+  }
+  cardOffset(i) { const n = 8, cur = this.workTarget == null ? this.state.pIdx : this.workTarget; let o = ((i - cur) % n + n) % n; if (o > n / 2) o -= n; return Math.round(o); }
+  csScroll = () => { const c = this.csRef.current; if (!c) return; const hero = c.querySelector('[data-cs-hero]'), hb = hero ? hero.getBoundingClientRect().bottom : 0; const top = hb > 44, mid = hb > window.innerHeight / 2; const footerEl = c.querySelector('footer'), footerNear = footerEl ? footerEl.getBoundingClientRect().top < window.innerHeight : false; if (top !== this.state.csTopDark || mid !== this.state.csMidDark || footerNear !== this.state.csFooterNear) this.setState({ csTopDark: top, csMidDark: mid, csFooterNear: footerNear }); if (c.scrollTop + c.clientHeight >= c.scrollHeight - 8) { const all = c.querySelectorAll('section[id^="cs-"]'), last = all[all.length - 1]; if (last && this.state.csActive !== last.id) this.setState({ csActive: last.id }); } };
+  setupReveal() {
+    if (this.revObs) { this.revObs.disconnect(); this.revObs = null; }
+    const c = this.csRef.current; if (!c) return; this.csScroll();
+    if (this.secObs) this.secObs.disconnect();
+    if (window.IntersectionObserver) { this.secObs = new IntersectionObserver(es => es.forEach(e => { if (e.isIntersecting && this.state.csActive !== e.target.id) this.setState({ csActive: e.target.id }); }), { root: c, rootMargin: '-35% 0px -60% 0px', threshold: 0 }); c.querySelectorAll('#cs-intro, section[id^="cs-"]').forEach(el => this.secObs.observe(el)); }
+    if (this.state.csActive !== 'cs-intro') this.setState({ csActive: 'cs-intro' });
+    if (this.reduce || !window.IntersectionObserver) return;
+    const vh = c.clientHeight;
+    this.revObs = new IntersectionObserver(es => es.forEach(e => { if (!e.isIntersecting) return; const el = e.target; this.revObs && this.revObs.unobserve(el); el.style.opacity = '1'; if (el.animate) el.animate([{ opacity: 0, transform: 'translateY(28px)' }, { opacity: 1, transform: 'none' }], { duration: 700, easing: 'cubic-bezier(0.22,1,0.36,1)' }); }), { root: c, rootMargin: '0px 0px -8% 0px', threshold: 0.08 });
+    c.querySelectorAll('[data-reveal]').forEach(el => { if (el.getBoundingClientRect().top < vh * 0.92) return; el.style.opacity = '0'; this.revObs.observe(el); });
+  }
+  caseData(op) {
+    const P = this.PROJECTS, p = P[op], d = (window.CASE_STUDIES || {})[p.slug] || {}, nx = P[(op + 1) % 4], nd = (window.CASE_STUDIES || {})[nx.slug] || {};
+    const two = n => (n < 10 ? '0' : '') + n, has = a => Array.isArray(a) && a.length > 0, secs = [];
+    const SEL = { arth: '[data-arth-thumb]', 'propvr-website': '[data-propvr-thumb]', 'hologram': '[data-exp-thumb]', 'dial-design': '[data-dial-thumb]' };
+    const pic = (slug, fb) => { const el = document.querySelector(SEL[slug]); return (el && el.currentSrc) || (el && el.src) || fb || ''; };
+        const T = x => (Array.isArray(x) ? x : x ? [x] : []).filter(Boolean).map(t => (t && typeof t === 'object') ? { t: t.text || t.t || '', ta: t.center ? 'center' : 'left', tm: t.center ? '0 auto' : '0' } : { t, ta: 'left', tm: '0' });
+    const IM = (o, label, ratio) => { o = typeof o === 'string' ? { src: o } : (o || {}); const src = o.src || '', r = o.ratio || ratio || '16 / 9'; return { src, has: !!src, none: !src, label: o.label || label, ratio: r, style: o.fit === 'phone' ? 'display:block;width:100%;aspect-ratio:' + (o.panel || '16 / 9') + ';object-fit:contain;padding:' + (o.pad || '6%') + ' 0;box-sizing:border-box;filter:drop-shadow(0 18px 24px rgba(0,0,0,0.18));' : 'display:block;width:100%;height:auto;' }; };
+    const lum = h => { const m = /^#?([0-9a-f]{6})$/i.exec((h || '').trim()); if (!m) return 1; const n = parseInt(m[1], 16), c = [n >> 16, (n >> 8) & 255, n & 255].map(v => { v /= 255; return v <= 0.03928 ? v / 12.92 : Math.pow((v + 0.055) / 1.055, 2.4); }); return 0.2126 * c[0] + 0.7152 * c[1] + 0.0722 * c[2]; };
+    const add = (key, label, title, o) => secs.push({ key, label, title, hasTitle: !!title, titleTxt: title || label, titleCss: title ? "font-family:'Bricolage Grotesque',sans-serif;margin:0;font-weight:500;font-size:clamp(34px,3.4vw,48px);letter-spacing:-0.03em;line-height:1.1;color:#111111;max-width:20em;text-wrap:balance;" : 'position:absolute;width:1px;height:1px;overflow:hidden;clip-path:inset(50%);white-space:nowrap;margin:0;', hasGroups: false, groups: [], hasLead: !!o.lead, lead: o.lead || '', text: T(o.text), hasList: has(o.list), list: T(o.list), isProblem: false, hasChallenge: false, hasBoards: false, boards: [], isPalette: false, isSolution: false, isForward: false, ...o, text: T(o.text), list: T(o.list) });
+    const boards = (arr, def) => (arr || []).map((b, i) => { const sc = !!(b.src && b.scroll); return { ...IM(b, (def || 'Image') + ' ' + (i + 1), b.ratio || '16 / 9'), hasCap: !!b.caption, cap: b.caption || '', hasTitle: !!b.title, title: b.title || '', hasNote: !!b.note, note: b.note || '', scroll: sc, tab: sc ? '0' : '-1', bg: sc ? 'transparent' : '#FFFFFF', ring: sc ? 'none' : '0 0 0 1px #EDEDED', panel: sc ? 'overflow:visible;' : '', frame: sc ? 'width:100%;height:clamp(520px,82vh,900px);overflow-y:auto;overflow-x:hidden;border-radius:14px;background:#0B0B12;scrollbar-width:thin;box-shadow:0 0 0 1px #EDEDED;' : '' }; });
+    const PR = (x) => { x = x || {}; const side = (o, def) => { o = o || {}; return { label: o.label || def, img: IM(o.image, o.alt || o.label || def, (o.image && o.image.ratio) || '16 / 10') }; }; return { hasTitle: !!x.title, title: x.title || '', hasCap: !!x.caption, cap: x.caption || '', l: side(x.left, 'On touchscreen'), r: side(x.right, 'On hologram') }; };
+    const GR = (arr) => (arr || []).map((g, i) => ({ n: two(i + 1), title: g.title || '', hasText: !!g.text, text: g.text || '', pairs: (g.pairs || []).map(PR) }));
+    const pr = d.problem;
+    if (pr && typeof pr === 'object') add('problem', pr.label || 'Problem', pr.title || 'Problem', { lead: pr.question, text: pr.text, isProblem: true, cards: (pr.cards || []).map(([t1, q], i) => ({ t: t1, p: q, hasNum: !!pr.numbered, n: two(i + 1) })), hasChallenge: !!pr.challenge, challengeLabel: pr.challengeLabel || 'The design challenge', challenge: pr.challenge || '', hasBoards: has(pr.images), boards: boards(pr.images, 'Screen'), hasGroups: has(pr.groups), groups: GR(pr.groups) });
+    const rs = d.research;
+    if (rs && typeof rs === 'object') add('research', rs.label || 'Research', rs.title || 'Research & Insights', { lead: rs.lead, text: rs.text, hasBoards: has(rs.images), boards: boards(rs.images, 'Research board'), hasGroups: has(rs.groups), groups: GR(rs.groups), isProblem: has(rs.cards), cards: (rs.cards || []).map(([t1, q], i) => ({ t: t1, p: q, hasNum: !!rs.numbered, n: two(i + 1) })) });
+    const st = d.strategy;
+    if (st) add('strategy', st.label || 'UX Strategy', st.title || 'User Experience Strategy', { lead: st.lead, text: st.text, hasBoards: has(st.images), boards: boards(st.images, 'Strategy board'), hasGroups: has(st.groups), groups: GR(st.groups) });
+    const pl = d.palette;
+    if (pl) {
+      const cols = (this.state.vw || window.innerWidth) < 700 ? 2 : 4;
+      const sw = (pl.swatches || []).map(w => { const spec = !!w.spec, L = lum(w.hex), dark = !spec && L < 0.4, span = Math.min(cols, w.span || 1);
+        return { role: w.role || '', name: w.name, hex: w.hexLabel || w.hex, span, h: spec ? '150px' : '210px', bg: spec ? '#FFFFFF' : w.hex, ink: dark ? '#FFFFFF' : '#111111', sh: spec || L > 0.85 ? '0 0 0 1px #ECECEC, 0 10px 28px -16px rgba(0,0,0,0.18)' : 'none',
+          hasBtn: !!w.button, btn: w.button || '', btnBg: w.hex, btnInk: w.buttonInk || '#FFFFFF', hasCopy: !w.button, hasChip: spec && !w.button, chip: w.hex,
+          copy: () => { try { navigator.clipboard && navigator.clipboard.writeText(w.hex); } catch (e) {} this.showToast && this.showToast('Copied ' + w.hex); } }; });
+      const bt = pl.buttons;
+      add('palette', 'Color Palette', pl.title || 'Color Palette', { lead: pl.lead, text: pl.text, isPalette: true, swatches: sw, hasButtons: !!bt, buttons: bt ? { title: bt.title || 'Button Variations', text: bt.text || '', primary: bt.primary || 'Primary', secondary: bt.secondary || 'Secondary', bg: bt.color || '#111111', ink: bt.ink || '#FFFFFF' } : {}, hasTokens: !!(pl.tokens && has(pl.tokens.rows)), tokens: pl.tokens ? { kicker: pl.tokens.kicker || '', title: pl.tokens.title || 'Semantic Token Mapping', note: pl.tokens.note || '', rows: (pl.tokens.rows || []).map(([name, hex, use]) => ({ name, hex, use })) } : {} });
+    }
+    const so = d.solution;
+    if (so && typeof so === 'object') add('solution', so.label || 'Solution', so.title || 'Solution and Final UI', { lead: so.lead, text: so.text, isSolution: true,
+      rows: (so.rows || []).map((r, i) => ({ t: r.title, p: r.text, hasNum: !!so.numbered, n: two(i + 1), dir: i % 2 ? 'row-reverse' : 'row', img: IM(r.image, r.title + ' screen', r.ratio || '16 / 9') })),
+      carousels: (so.carousels || []).map((c, ci) => { const id = 'cs-car-' + p.slug + '-' + ci, lab = (c.screens || []).some(x => x && x.label), pos = (this.state.carPos || {})[id] || { s: true, e: false };
+        return { id, name: c.title || 'screens', hasTitle: !!c.title, title: c.title || '', hasLabels: lab, screens: (c.screens || []).map((x, i) => ({ label: (x && x.label) || '', tall: !!(x && x.image && x.image.scroll), tab: x && x.image && x.image.scroll ? '0' : '-1', frame: x && x.image && x.image.scroll ? 'overflow-y:auto;overflow-x:hidden;scrollbar-width:thin;scrollbar-color:rgba(255,255,255,0.25) transparent;' : 'overflow:hidden;', img: IM(x && x.image, ((x && x.label) || (c.title || 'Screen')) + ' ' + (lab ? '' : i + 1), '9 / 19.5') })),
+          prevDisp: pos.s ? 'none' : 'flex', nextDisp: pos.e ? 'none' : 'flex',
+          onScroll: e => { const el = e.currentTarget; if (!el) return; const st = el.scrollLeft <= 4, en = el.scrollLeft >= el.scrollWidth - el.clientWidth - 4, cur = (this.state.carPos || {})[id] || { s: true, e: false }; if (cur.s !== st || cur.e !== en) this.setState({ carPos: { ...(this.state.carPos || {}), [id]: { s: st, e: en } } }); },
+          prev: () => { const el = document.getElementById(id); if (el) el.scrollBy({ left: -el.clientWidth * 0.6, behavior: this.reduce ? 'auto' : 'smooth' }); },
+          next: () => { const el = document.getElementById(id); if (el) el.scrollBy({ left: el.clientWidth * 0.6, behavior: this.reduce ? 'auto' : 'smooth' }); } }; }) });
+    const le = d.learnings;
+    if (le) add('learnings', le.label || 'Learnings', le.title != null ? le.title : 'Learnings', { lead: le.lead, text: le.text, list: le.list });
+    const fw = d.forward;
+    if (fw && has(fw.cards)) add('forward', 'Next steps', fw.title || ('If I were to take ' + p.title + ' forward'), { lead: fw.lead, text: fw.text, isForward: true, cards: fw.cards.map(t1 => ({ t: t1 })) });
+    const intro = d.intro || {};
+    secs.forEach((x, i) => { x.num = two(i + 2); x.id = 'cs-' + x.key; x.hid = 'cs-h-' + x.key; x.hasKicker = !!d.numbered; x.kicker = x.num + ' — ' + x.label; });
+    const toc = [{ id: 'cs-intro', short: (intro.label || 'Intro').toLowerCase(), num: '01', label: intro.label || 'Intro', go: () => { this.setState({ csToc: false }); const c = this.csRef.current; if (c) c.scrollTo({ top: 0, behavior: this.reduce ? 'auto' : 'smooth' }); } }].concat(secs.map(x => ({ id: x.id, short: x.label.toLowerCase(), num: x.num, label: x.title, go: () => { this.setState({ csToc: false }); const c = this.csRef.current, el = c && c.querySelector('#' + x.id); if (el) c.scrollTo({ top: Math.max(0, el.offsetTop - 24), behavior: this.reduce ? 'auto' : 'smooth' }); } })));
+    const tags = [d.category || p.category, (d.meta || []).find(m => m[0] === 'Status')].filter(Boolean).map(x => ({ t: Array.isArray(x) ? x[1] : x }));
+    const cmp = intro.compare || [];
+    return { hasPair: !!intro.pair, pair: PR(intro.pair), intro: { title: intro.title || 'Intro', hasKicker: false, kicker: '01 — ' + (intro.label || 'Intro') }, hasIntroImg: !has(cmp) && intro.image !== false, hasCompare: has(cmp), compareTitle: intro.compareTitle || '', compareText: T(intro.compareText), compare: cmp.map((c, i) => ({ label: c.label, sep: i > 0, scroll: !!(c.image && c.image.src && c.image.scroll), tab: c.image && c.image.src && c.image.scroll ? '0' : '-1', panel: c.image && c.image.src && c.image.scroll ? 'padding:clamp(20px,3vw,40px) 0 clamp(18px,2.5vw,28px);' : '', frame: c.image && c.image.src && c.image.scroll ? 'width:min(' + (c.image.frameWidth || 560) + 'px, calc(100% - 32px));margin:0 auto;height:clamp(460px,72vh,780px);overflow-y:auto;overflow-x:hidden;border-radius:10px;background:#FFFFFF;scrollbar-width:thin;box-shadow:0 18px 40px -22px rgba(0,0,0,0.35);' : '', dot: i ? '#3F746E' : '#C4C4C4', img: IM(c.image, c.label, (c.image && c.image.ratio) || '1440 / 2400') })), introText: T(intro.text || d.description || p.summary), introImg: IM(intro.image, 'Intro image', (intro.image && intro.image.ratio) || '16 / 9'), coverClip: d.coverClip || 'inset(100% 0 0 0)', cover: d.cover || pic(p.slug, d.hero), slug: p.slug, category: d.category || p.category, subtitle: d.subtitle || p.subtitle, tags, prevTitle: P[(op + 3) % 4].title, title: p.title, num: two(op + 1), label: d.label || p.category, description: d.description || p.summary, hero: pic(p.slug, d.hero), heroBg: d.heroBg || '#171717', heroAlt: p.title + ' final interface preview', heroLight: !!d.heroLight, titleOver: !d.titlePlace || d.titlePlace === 'over', titleBelow: d.titlePlace === 'below', titleHidden: d.titlePlace === 'none', heroInk: d.heroInk || (d.heroLight ? 'rgba(22,26,72,0.38)' : 'rgba(255,255,255,0.32)'),
+      meta: (intro.meta || d.meta || []).map(([k, v, href]) => ({ k, v, href: href || '', hasLink: !!href, noLink: !href })), sections: secs, toc,
+      hasPrev: op > 0, hasNext: op < P.length - 1, nextJustify: op > 0 ? 'flex-end' : 'space-between', nextAlign: op > 0 ? 'right' : 'left', prev: { title: op > 0 ? P[op - 1].title : '' },
+      next: { num: two(((op + 1) % 4) + 1), title: nx.title, category: nd.category || nx.category, hero: pic(nx.slug, nd.hero), heroBg: nd.heroBg || '#171717' } };
+  }
+  openCase(i, from, how) {
+    if (!this.state.open) this.caseFocus = document.activeElement;
+    const p = this.PROJECTS[i], url = '#/work/' + p.slug;
+    try { if (how === 'replace' || how === 'none') { if (how === 'replace') history.replaceState({ cs: p.slug }, '', url); } else { history.pushState({ cs: p.slug }, '', url); this.casePushed = true; } } catch (e) {}
+    document.title = p.title + ' — Case study · Shruti Tomar';
+    this.setState({ open: p.slug, pIdx: i, csToc: false, openFrom: from || this.state.openFrom || (this.state.overlay === 'classic' ? 'classic' : 'projects') });
+    if (this.scene) this.scene.setInput(false);
+    setTimeout(() => { const el = this.csRef.current; if (el) { el.scrollTo({ top: 0, behavior: 'auto' }); if (!this.reduce && el.animate) el.animate([{ opacity: 0, transform: 'translateY(24px)' }, { opacity: 1, transform: 'none' }], { duration: 420, easing: 'cubic-bezier(0.22,1,0.36,1)' }); el.focus({ preventScroll: true }); this.setupReveal(); } }, 30);
+  }
+  closeCase = () => {
+    // Close the UI/scene state right away rather than waiting on a history popstate
+    // round-trip to get there — inside some preview/iframe contexts history.back()
+    // never fires popstate, which used to leave the 3D scene permanently input-disabled
+    // (hotspots stopped responding) until a hard reload.
+    this.doCloseCase();
+    if (this.casePushed) { this.casePushed = false; try { history.back(); return; } catch (e) {} }
+    try { history.replaceState(null, '', location.pathname + location.search); } catch (e) {}
+  };
+  doCloseCase() {
+    if (!this.state.open) return;
+    document.title = this.baseTitle || 'Shruti Tomar — Portfolio';
+    if (this.revObs) { this.revObs.disconnect(); this.revObs = null; }
+    if (this.secObs) { this.secObs.disconnect(); this.secObs = null; }
+    this.setState({ open: null, csToc: false, csActive: null, csTopDark: true, csMidDark: true });
+    if (this.scene && !this.state.overlay) this.scene.setInput(true);
+    const lf = this.caseFocus; if (lf && lf.focus) setTimeout(() => lf.focus({ preventScroll: true }), 0);
+  }
+  onRoute = () => {
+    const m = /^#\/work\/([\w-]+)/.exec(location.hash || ''), i = m ? this.PROJECTS.findIndex(p => p.slug === m[1]) : -1;
+    if (i >= 0) { if (this.state.open !== this.PROJECTS[i].slug) this.openCase(i, this.state.openFrom || 'projects', 'none'); }
+    else if (this.state.open) { this.casePushed = false; this.doCloseCase(); }
+  };
+  sound(k) {
+    if (this.state.muted) return;
+    try {
+      const A = this.ac || (this.ac = new (window.AudioContext || window.webkitAudioContext)()); A.resume && A.resume();
+      const now = A.currentTime;
+      const tone = (f, t0, d, g = 0.18, type = 'sine') => { const o = A.createOscillator(), v = A.createGain(); o.type = type; o.frequency.value = f; v.gain.setValueAtTime(0, now + t0); v.gain.linearRampToValueAtTime(g, now + t0 + 0.01); v.gain.exponentialRampToValueAtTime(0.0001, now + t0 + d); o.connect(v).connect(A.destination); o.start(now + t0); o.stop(now + t0 + d + 0.05); };
+      if (k === 'bell') { tone(659.3, 0, 1.4); tone(1318.5, 0, 0.6, 0.04); tone(523.3, 0.55, 1.8); tone(1046.5, 0.55, 0.7, 0.04); }
+      if (k === 'tv') { tone(80, 0, 0.25, 0.08, 'triangle'); tone(15000, 0, 0.4, 0.015); }
+    } catch (e) {}
+  }
+  key(e) {
+    const t = e.target; if (t && (t.isContentEditable || /^(INPUT|TEXTAREA|SELECT)$/.test(t.tagName))) return;
+    const s = this.state;
+    if (e.key === 'Escape') {
+      if (s.open && s.csToc) { e.preventDefault(); this.setState({ csToc: false }); return; }
+      if (s.open) { e.preventDefault(); this.closeCase(); return; }
+      if (s.overlay) { e.preventDefault(); this.closeOverlay(); return; }
+      if (s.goOpen || s.help || s.menuOpen || s.timeOpen) { this.setState({ goOpen: false, help: false, menuOpen: false, timeOpen: false }); return; }
+      const sm = this.scene ? this.scene.getMode() : s.mode;
+      if (sm === 'desk' && this.scene) { this.scene.leaveDesk(); return; }
+      if (sm === 'shelf' && this.scene) { if (this.scene.hasOpenBook()) this.scene.closeBook(); else this.scene.leaveShelf(); return; }
+      if ((sm === 'seated' || sm === 'sitting') && this.scene) { e.preventDefault(); this.tvOffNow(); return; }
+    }
+    if (s.mode === 'desk' && !s.open && !s.overlay) {
+      if (e.key === 'ArrowRight') { e.preventDefault(); this.stepP(1); }
+      if (e.key === 'ArrowLeft') { e.preventDefault(); this.stepP(-1); }
+      if (e.key === 'Enter' && performance.now() - (this.deskReadyAt || 0) > 500) { const a = document.activeElement; if (!a || (a.tagName !== 'BUTTON' && a.getAttribute('role') !== 'button' && a.tagName !== 'A')) { e.preventDefault(); this.openCase(s.pIdx, 'projects'); } }
+    }
+    if (e.key === '?' && !s.overlay && !s.open) this.setState({ help: !s.help });
+    if ((s.open || s.overlay) && e.key === 'Tab') {
+      const root = s.open ? this.csRef.current : document.querySelector('[role="dialog"][aria-modal="true"]');
+      if (!root) return;
+      const fs = Array.from(root.querySelectorAll('button,a[href],[tabindex]:not([tabindex="-1"])')).filter(x => x.offsetParent !== null);
+      if (!fs.length) return; const a = fs[0], b = fs[fs.length - 1];
+      if (e.shiftKey && document.activeElement === a) { e.preventDefault(); b.focus(); } else if (!e.shiftKey && document.activeElement === b) { e.preventDefault(); a.focus(); }
+    }
+  }
+
+  renderVals() {
+    const s = this.state, sc = () => this.scene, P = this.PROJECTS, narrow = s.narrow;
+    const mode = s.mode, explore = mode === 'explore';
+    const pr = (s.prompt === 'lamp' || s.prompt === 'lamp2' || s.prompt === 'lamp3') ? [(this.scene && this.scene.isLampOn(s.prompt) ? 'Turn off the lamp' : 'Turn on the lamp'), ''] : s.prompt && this.PROMPTS[s.prompt];
+    const ops = {}; for (let i = 0; i < 6; i++) { ops['op' + i] = i === s.interest ? 1 : 0; ops['pe' + i] = i === s.interest ? 'auto' : 'none'; }
+    for (let i = 0; i < 4; i++) { ops['dOp' + i] = i === s.pIdx ? 1 : 0; ops['dPe' + i] = i === s.pIdx ? 'auto' : 'none'; }
+    const dp = P[s.pIdx];
+    const go = (fn) => () => { this.setState({ goOpen: false }); if (this.scene) fn(this.scene); };
+    const goItems = [
+      { label: 'Sofa', hint: 'Favourite shows', go: go(x => x.goTo('sofa')) },
+      { label: 'Desk', hint: 'See the work', go: go(x => x.goTo('desk')) },
+      { label: 'Shelf', hint: 'Books & music', go: go(x => x.goTo('shelf')) },
+      { label: 'Front door', hint: 'Contact', go: go(x => x.goTo('door')) }
+    ];
+    const email = (this.props.email || 'shrutitomar2916@gmail.com').trim();
+    const li = (this.props.linkedinUrl || 'https://www.linkedin.com/in/shrutitomar29/').trim();
+    const gh = (this.props.githubUrl || 'https://github.com/ShrutiTomar02').trim();
+    const be = (this.props.behanceUrl || 'https://www.behance.net/shrutitomar02').trim();
+    const resumeUrl = this.props.resumeUrl || 'https://drive.google.com/file/d/1FEqy9X0XvOy43KN_oCbHgqqqBMacPKVa/view?usp=sharing';
+    const soc = (label, url, ext) => ({ label, href: url, target: ext ? '_blank' : undefined, aria: label + (ext ? ' (opens in a new tab)' : '') });
+    const op = P.findIndex(p => p.slug === s.open), cp = P[op];
+    const csData = cp ? this.caseData(op) : null;
+    const pad = (x, y, t = 0) => (e) => { if (e && e.currentTarget && e.pointerId !== undefined && e.type === 'pointerdown') { try { e.currentTarget.setPointerCapture(e.pointerId); } catch (er) {} } this.scene && this.scene.setJoy(x, y, t); };
+    const vw = s.vw || window.innerWidth, phone = vw < 600, compact = vw < 900;
+    const padShown = (explore || mode === 'walking') && !s.overlay && !s.open;
+    const V = {
+      ...ops,
+      canvasRef: this.canvasRef, deskRef: this.deskRef, csRef: this.csRef,
+      loading: s.loading, noGL: s.noGL, glOk: !s.noGL,
+      navRight: narrow ? '92px' : '140px', classicLabel: narrow ? 'Classic' : 'Classic view',
+      ribbonRight: narrow ? '12px' : '28px', ribbonW: narrow ? '68px' : '96px', ribbonH: narrow ? '82px' : '116px', ribbonHover: narrow ? '90px' : '126px', ribbonPad: narrow ? '28px' : '44px', ribbonFs: narrow ? '12px' : '16px',
+      navWork: () => { this.setState({ overlay: null, open: null }); if (this.scene) { this.scene.setInput(true); this.scene.toDesk(); } else this.setState({ overlay: 'classic' }); },
+      navAbout: () => this.openOverlay('about'), navContact: () => this.openOverlay('contact'), navClassic: () => { this.exitMusic(); this.openOverlay('classic'); },
+      toggleMute: () => { const m = !s.muted; this.setState({ muted: m }); try { localStorage.setItem('shruti-apt-muted', m ? '1' : '0'); } catch (e) {} if (m && window.speechSynthesis) speechSynthesis.cancel(); if (this.audio) this.audio.muted = m; if (this.yt) { try { m ? this.yt.mute() : this.yt.unMute(); } catch (e) {} } },
+      mutedPressed: s.muted ? 'true' : 'false', muteLabel: s.muted ? 'Sound off. Turn sound on' : 'Sound on. Turn sound off', muteIcon: s.muted ? '🔇\uFE0E' : '♪',
+      restart: () => { if (window.speechSynthesis) speechSynthesis.cancel(); this.stopAudio(); this.tvClose(); this.setState({ music: null, book: null }); this.setPlay('idle'); this.setState({ overlay: null, open: null, goOpen: false }); if (this.scene) { this.scene.setInput(true); this.scene.restart(); } },
+      resumeUrl,
+      atGate: mode === 'gate' && !s.loading && !s.overlay, gateLine: s.visited ? 'Welcome back. Ring the bell.' : 'Someone’s home. Ring the bell.',
+      ring: () => this.scene && this.scene.ring(),
+      promptBottom: phone && padShown ? '196px' : '84px', seatBottom: phone ? '76px' : '18px', timeBottom: '16px',
+      hasDialog: !!s.dialog && !s.overlay, dialog: s.dialog || '', hasDialogSub: !!s.dialogSub && s.dialog === this.WELCOME, dialogSub: s.dialogSub || '', closeDialog: () => this.nudgeSofa(),
+      tvRef: this.tvRef, ytHostRef: this.ytHostRef,
+      tvOp: s.tvOn && mode === 'seated' && !s.overlay && !s.open ? '1' : '0', tvPe: s.tvOn && mode === 'seated' && !s.overlay && !s.open ? 'auto' : 'none',
+      tvMenu: !!s.tvOn && (s.tvState === 'menu' || !s.tvState), tvWatching: !!s.tvOn && !!s.tvSel,
+      ytDisplay: s.tvOn && s.tvSel ? 'block' : 'none',
+      tvShows: this.videos().map(v => ({ title: v.title, thumbCss: v.id ? 'url(https://i.ytimg.com/vi/' + v.id + '/hqdefault.jpg)' : 'none', hasThumb: !!v.id, disabled: !v.id, cursor: v.id ? 'pointer' : 'default', cta: v.id ? '▶ Watch' : 'Link coming soon', aria: v.id ? 'Watch ' + v.title : v.title, ring: s.tvSel === v.n ? '#d9a43b' : 'transparent', pick: () => this.tvPick(v) })),
+      tvHasNote: !!s.tvOn && !!s.tvNote, tvNote: s.tvNote || '',
+      tvHasLink: !!s.tvSel && (s.tvState === 'error' || s.tvState === 'blocked'), tvLink: (() => { const v = this.videos().find(x => x.n === s.tvSel); return v && v.id ? 'https://www.youtube.com/watch?v=' + v.id + (v.start ? '&t=' + v.start + 's' : '') : '#'; })(),
+      tvCanRetry: !!s.tvSel && (s.tvState === 'blocked' || s.tvState === 'error'), tvRetry: () => { const v = this.videos().find(x => x.n === s.tvSel); if (v) this.tvPick(v); },
+      tvBack: () => { this.destroyYT(); this.setState({ tvState: 'menu', tvSel: null, tvNote: '' }); },
+      tvOff: () => this.tvOffNow(), tvHint: s.touch ? 'Tap a show to watch' : 'Press ESC to turn off the TV',
+      hasToast: !!s.toast, toast: s.toast || '',
+      hasPrompt: explore && !!pr && !s.overlay && !s.open, promptKey: s.touch ? '↵' : 'E', promptTitle: pr ? pr[0] : '', promptSub: pr ? pr[1] : '', hasPromptSub: !!(pr && pr[1]),
+      doPrompt: () => { const p = this.scene && this.scene.getPrompt(); if (p) this.interact(p); },
+      seated: (mode === 'seated') && !s.overlay && !s.open, movieEnded: s.ended, showCaption: s.cc && !!s.line && !s.ended, lineText: s.line,
+      playLabel: s.playing && !s.ended ? 'Pause ❚❚' : 'Play ▶',
+      playPause: () => { if (!this.scene) return; if (s.playing && !s.ended) { this.scene.pause(); if (window.speechSynthesis) speechSynthesis.pause(); } else { this.scene.play(); if (window.speechSynthesis) speechSynthesis.resume(); } },
+      skipFilm: () => { if (window.speechSynthesis) speechSynthesis.cancel(); this.scene && this.scene.skip(); },
+      replay: () => { if (window.speechSynthesis) speechSynthesis.cancel(); this.scene && this.scene.replay(); },
+      toggleCC: () => this.setState({ cc: !s.cc }), ccPressed: s.cc ? 'true' : 'false', ccBg: s.cc ? '#F3EEE4' : 'transparent', ccInk: s.cc ? '#171717' : '#f5ecdc',
+      toggleNarrate: () => { const n = !s.narrate; this.setState({ narrate: n }); if (!n && window.speechSynthesis) speechSynthesis.cancel(); },
+      narratePressed: s.narrate ? 'true' : 'false', narBg: s.narrate ? '#F3EEE4' : 'transparent', narInk: s.narrate ? '#171717' : '#f5ecdc',
+      standUp: () => { if (window.speechSynthesis) speechSynthesis.cancel(); if (this.scene) { this.scene.pause(); this.scene.stand(); } },
+      endWork: () => this.scene && this.scene.toDesk(),
+      deskOp: s.deskOn && !s.open ? 1 : 0, deskPe: s.deskOn && !s.open ? 'auto' : 'none',
+      pNum: '0' + (s.pIdx + 1), dp: { ...dp, bg: dp.thumb },
+      ptabs: P.map((p, i) => ({ title: p.title, sel: i === s.pIdx ? 'true' : 'false', pick: () => this.setState({ pIdx: i }), bg: i === s.pIdx ? '#171717' : '#f3eee4', ink: i === s.pIdx ? '#ffffff' : '#2b2621' })),
+      prevP: () => this.stepP(-1), nextP: () => this.stepP(1),
+      deskWheel: e => { e.stopPropagation(); const k = e.deltaMode === 1 ? 33 : e.deltaMode === 2 ? 400 : 1; this.wheelP((Math.abs(e.deltaY) >= Math.abs(e.deltaX) ? e.deltaY : e.deltaX) * k); },
+      deskTouchStart: e => { const t = e.touches[0]; this.tP = t ? { x: t.clientX, y: t.clientY } : null; },
+      deskTouchMove: e => { const t = e.touches[0], p = this.tP; if (!t || !p) return; const dx = p.x - t.clientX, dy = p.y - t.clientY; this.tP = { x: t.clientX, y: t.clientY }; this.wheelP((Math.abs(dy) >= Math.abs(dx) ? dy : dx) * 2.2); },
+      deskTouchEnd: () => { this.tP = null; },
+      scrollDot: React.createElement('span', { style: { position: 'absolute', left: '50%', top: '0.25em', width: '0.18em', height: '0.32em', borderRadius: '0.1em', background: '#3F746E', transform: 'translate(-50%,0)', animation: this.reduce ? 'none' : 'scrollDot 1.8s ease-in-out infinite' } }),
+      drumRef: this.drumRef, carRef: this.carRef, vpRef: this.vpRef,
+      drumMove: e => { const d = this.drumRef.current; if (!d) return; const r = d.getBoundingClientRect(); this.mouseP = { x: e.clientX - r.left, y: e.clientY - r.top }; this.placeVP(); },
+      drumLeave: () => { this.mouseP = null; this.placeVP(); },
+      slots: P.map((p, i) => {
+        const go = () => { if (this.state.mode !== 'desk' || performance.now() - (this.lastWheel || 0) < 260 || performance.now() - (this.deskReadyAt || 0) < 500) return; clearTimeout(this.snapT); this.openCase(i, 'projects'); };
+        return { title: p.title, desc: p.subtitle, year: p.year || '', meta: '0' + (i + 1) + ' · ' + p.category, aria: 'Open case study: ' + p.title + ', ' + p.subtitle, click: go,
+          enter: () => { this.hoverCard = i; this.applyCards(); }, leave: () => { if (this.hoverCard === i) { this.hoverCard = null; this.applyCards(); } } };
+      }),
+      openCurrent: () => this.openCase(s.pIdx, 'projects'), leaveDesk: () => this.scene && this.scene.leaveDesk(),
+      times: this.TIMES.map(([id, label]) => ({ label, checked: id === s.time ? 'true' : 'false', bg: id === s.time ? '#F3EEE4' : 'transparent', ink: id === s.time ? '#171717' : '#f5ecdc', pick: () => { this.setState({ time: id }); try { localStorage.setItem('shruti-apt-time', id); } catch (e) {} if (this.scene) this.scene.setTime(id); }, pickClose: () => { this.setState({ time: id, timeOpen: false }); try { localStorage.setItem('shruti-apt-time', id); } catch (e) {} if (this.scene) this.scene.setTime(id); } })),
+      showPad: (explore || mode === 'walking') && !s.overlay && !s.open,
+      spotLabels: [['sofa', 'Sofa · have a seat'], ['desk', 'Desk · my work'], ['shelf', 'Shelf · books & music'], ['lamp', 'Reading lamp'], ['lamp2', 'Floor lamp'], ['lamp3', 'Desk lamp'], ['door', 'Door · contact']].map(([id, label]) => ({ id, label, go: () => { if (!this.scene) return; if (id === 'bell') { this.scene.ring(); return; } if (id === 'lamp' || id === 'lamp2' || id === 'lamp3') { this.scene.toggleLamp(id); this.forceUpdate(); return; } if (this.scene.getPrompt() === id && this.scene.getMode() === 'explore') this.interact(id); else this.scene.goTo(id); } })),
+      padF: pad(0, 1), padB: pad(0, -1), padL: pad(-1, 0), padR: pad(1, 0), padTL: pad(0, 0, 1), padTR: pad(0, 0, -1), padStop: pad(0, 0),
+      goOpen: s.goOpen, goItems, toggleGo: () => this.setState({ goOpen: !s.goOpen, help: false }), goExpanded: s.goOpen ? 'true' : 'false',
+      showHelp: s.help && !s.overlay, toggleHelp: () => this.setState({ help: !s.help, goOpen: false }), closeHelp: () => this.setState({ help: false }), helpExpanded: s.help ? 'true' : 'false',
+      ovAbout: s.overlay === 'about', ovContact: s.overlay === 'contact', ovClassic: s.overlay === 'classic',
+      closeOverlay: this.closeOverlay, closeOverlayBg: e => { if (e.target === e.currentTarget) this.closeOverlay(); },
+      aboutKicker: s.aboutKicker || 'Welcome in.',
+      interests: this.INTERESTS.map((label, i) => ({ label, pressed: i === s.interest ? 'true' : 'false', press: () => this.setState({ interest: i }), bg: i === s.interest ? '#3F746E' : '#fffaf2', ink: i === s.interest ? '#ffffff' : '#171717', bd: i === s.interest ? '#3F746E' : '#cdb9a2' })),
+      socials: [soc('Email', 'mailto:' + email, false), soc('LinkedIn', li, true), soc('Behance', be, true), soc('GitHub', gh, true), soc('Resume', resumeUrl, true)],
+      classicProjects: P.map((p, i) => ({ ...p, num: '0' + (i + 1), open: () => this.openCase(i, 'classic') })),
+      csOpen: !!cp, closeCase: this.closeCase, backLabel: s.openFrom === 'classic' ? 'portfolio' : 'projects',
+      cs: csData, csTocOpen: !!s.csToc, csGlassBg: s.csTopDark !== false && !(csData && csData.heroLight) ? 'rgba(255,255,255,0.14)' : 'rgba(255,255,255,0.55)', csGlassLine: s.csTopDark !== false && !(csData && csData.heroLight) ? 'rgba(255,255,255,0.28)' : 'rgba(23,23,23,0.12)', csGlassInk: s.csTopDark !== false && !(csData && csData.heroLight) ? '#FFFFFF' : '#171717', csIndexOn: vw >= 1100, csIndexPad: vw >= 1100 ? '168px' : '0px', csIdxOpacity: s.csFooterNear ? '0' : '1', csIdxPtr: s.csFooterNear ? 'none' : 'auto', csTocBtn: vw >= 1100 ? 'none' : 'block', csIndex: csData ? csData.toc.map(x => { const on = x.id === (s.csActive || 'cs-intro'), dk = s.csMidDark !== false && !csData.heroLight; return { ...x, ink: on ? (dk ? '#F5F5F5' : '#171717') : (dk ? 'rgba(245,245,245,0.6)' : '#7a756c'), line: on ? (dk ? '#F5F5F5' : '#171717') : (dk ? 'rgba(245,245,245,0.35)' : '#c9c4ba'), cur: on ? 'true' : 'false' }; }) : [], csInsightCols: vw < 700 ? 'minmax(0,1fr)' : 'minmax(64px,0.4fr) minmax(0,1.6fr) minmax(0,2fr)', csMapCols: vw < 700 ? 'minmax(0,1fr)' : 'repeat(3,minmax(0,1fr))', csMapHead: vw < 700 ? 'none' : 'grid', csMapInline: vw < 700 ? 'block' : 'none', csProgRef: this.csProgRef, csScroll: this.csScroll, csNameDisplay: vw < 560 ? 'none' : 'flex', csTocExpanded: s.csToc ? 'true' : 'false', csTocToggle: () => this.setState({ csToc: !s.csToc }), journeyDir: phone ? 'column' : 'row', journeyBasis: phone ? 'auto' : '220px',
+      csPalCols: vw < 700 ? 2 : 4, csPairCols: vw < 700 ? 'minmax(0,1fr)' : 'minmax(0,1fr) auto minmax(0,1fr)', csPairRot: vw < 700 ? '90deg' : '0deg', csLinks: [soc('LinkedIn', li, true), soc('GitHub', gh, true), soc('Behance', be, true), soc('Email', 'mailto:' + email, false)],
+      csPrev: () => { if (op > 0) this.openCase(op - 1, s.openFrom, 'replace'); },
+      csNext: () => { if (op < P.length - 1) this.openCase(op + 1, s.openFrom, 'replace'); },
+      liveText: s.live, tipRef: this.tipRef,
+      inShelf: mode === 'shelf' && !s.overlay && !s.open, shelfHint: s.touch ? 'Tap a book or an album' : 'Click a book or an album',
+      leaveShelf: () => this.scene && this.scene.leaveShelf(),
+      hasBook: mode === 'shelf' && !!s.book && !s.overlay, bookTitle: s.book ? s.book.t : '', bookAuthor: s.book ? s.book.a : '',
+      hasMusic: !!s.music && !s.overlay && !s.open, musicTitle: s.music ? s.music.t : '', musicArtist: s.music ? s.music.a : '', musicSwatch: s.music ? s.music.sw : '#333',
+      musicStateLabel: ({ playing: 'Playing', paused: 'Paused', unavailable: 'Unavailable', loading: 'Starting…', blocked: 'Waiting for you', idle: '' })[s.musicState || 'idle'],
+      musicStateInk: ({ playing: '#7fe0a8', paused: '#f2c36b', unavailable: '#f29a8f', loading: '#cfc8bd', blocked: '#f2c36b', idle: '#cfc8bd' })[s.musicState || 'idle'],
+      musicCanToggle: (!!this.audio || (this.spOn && !!this.spCtl)) && (s.musicState === 'playing' || s.musicState === 'paused' || s.musicState === 'blocked'),
+      musicDisplay: s.music && !s.overlay && !s.open ? 'flex' : 'none', spotifyRef: this.spotifyRef,
+      spotifyDisplay: s.music && this.spOn ? 'block' : 'none',
+      musicHasLink: !!s.music && /open\.spotify\.com/.test(this.spotifyUrl(s.music.i)), musicLink: s.music ? this.spotifyUrl(s.music.i) : '#', musicToggleLabel: s.musicState === 'playing' ? 'Pause ❚❚' : 'Resume ▶',
+      musicToggle: () => this.onAlbum('toggle'),
+      musicStop: () => this.exitMusic(),
+      musicHasNote: !!(s.musicNote || (mode === 'shelf' && s.musicState === 'playing')), musicNote: s.musicNote || 'Click the player to pause or resume.',
+      phone, notPhone: !phone, compact, notCompact: !compact,
+      menuOpen: s.menuOpen && compact, menuExpanded: s.menuOpen ? 'true' : 'false', menuIcon: s.menuOpen ? '✕' : '☰',
+      toggleMenu: () => this.setState({ menuOpen: !s.menuOpen, goOpen: false, help: false, timeOpen: false }),
+      menuItems: [
+        { label: 'Work', hint: 'Desk', go: () => { this.setState({ menuOpen: false }); V.navWork(); } },
+        { label: 'About', hint: '', go: () => { this.setState({ menuOpen: false }); this.openOverlay('about'); } },
+        { label: 'Contact', hint: '', go: () => { this.setState({ menuOpen: false }); this.openOverlay('contact'); } },
+        { label: s.muted ? 'Sound on' : 'Sound off', hint: s.muted ? '🔇\uFE0E' : '♪', go: () => { this.setState({ menuOpen: false }); V.toggleMute(); } },
+        { label: 'Start again', hint: '↺', go: () => { this.setState({ menuOpen: false }); V.restart(); } }
+      ],
+      timeOpenPhone: phone && s.timeOpen, toggleTime: () => this.setState({ timeOpen: !s.timeOpen, goOpen: false, help: false, menuOpen: false }), timeExpanded: s.timeOpen ? 'true' : 'false',
+      timeName: (this.TIMES.find(t => t[0] === s.time) || this.TIMES[0])[1],
+      padSize: s.touch ? '54px' : '46px',
+      deskCols: s.deskSheet && phone ? 'minmax(0,1fr)' : 'minmax(0,1fr) minmax(0,1fr)', deskImgMin: s.deskSheet && phone ? '180px' : '0px',
+      needFocus: explore && s.docFocus === false && !s.touch && !s.overlay && !s.open,
+      grabFocus: () => { window.focus(); const c = this.canvasRef.current; if (c) c.focus({ preventScroll: true }); this.setState({ docFocus: true }); }
+    };
+    return V;
+  }
+}
+</script>
+
+
+</body></html>
