@@ -734,6 +734,16 @@ class Component extends DCLogic {
     return 'matrix3d(' + [n[0], n[3], 0, n[6], n[1], n[4], 0, n[7], 0, 0, 1, 0, n[2], n[5], 0, n[8]].map(x => +x.toFixed(9)).join(',') + ')';
   }
   placeDesk(r) {
+    this.placeDeskFrame(r);
+    // The project cards set their own pointer-events, which overrides the
+    // hidden desk screen's pointer-events:none. Once the desk is left, those
+    // invisible cards would keep covering the 3D room and swallow clicks on
+    // every hotspot. Re-run the card layout whenever the screen goes
+    // interactive or non-interactive so the cards follow it.
+    const el = this.deskRef.current, live = !!el && el.style.pointerEvents === 'auto';
+    if (live !== !!this.deskLive) { this.deskLive = live; this.applyCards(); }
+  }
+  placeDeskFrame(r) {
     const el = this.deskRef.current; if (!el) return;
     const W = window.innerWidth, H = window.innerHeight;
     el.style.left = '0px'; el.style.top = '0px'; el.style.width = W + 'px'; el.style.height = H + 'px';
@@ -884,7 +894,7 @@ class Component extends DCLogic {
       const b = btns[g.i], t = tts[g.i]; if (!b || !t) return;
       const a = Math.max(0, g.x0), e = Math.min(W, g.x1), on = g.vis && e - a > 24 && Math.abs(g.o) < 1.6;
       b.style.left = a + 'px'; b.style.width = Math.max(0, e - a) + 'px'; b.style.top = g.top + 'px'; b.style.height = L.CH + 'px';
-      b.style.pointerEvents = on ? 'auto' : 'none'; b.tabIndex = on ? 0 : -1; b.style.visibility = on ? 'visible' : 'hidden';
+      const live = on && !!this.deskLive; b.style.pointerEvents = live ? 'auto' : 'none'; b.tabIndex = live ? 0 : -1; b.style.visibility = on ? 'visible' : 'hidden';
       const lb = CR.labelBox(L, g, vel), yr = drum.querySelectorAll('[data-year]')[g.i];
       const tt = t.querySelector('[data-t]'), dd = t.querySelector('[data-d]');
       tt.style.fontSize = L.titleSize.toFixed(1) + 'px'; dd.style.fontSize = L.descSize.toFixed(1) + 'px';
