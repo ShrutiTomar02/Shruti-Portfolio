@@ -17,6 +17,10 @@ body{font-family:'Geist',system-ui,sans-serif;color:#171717;-webkit-font-smoothi
 a{color:#3F746E;text-decoration:underline;}
 a:hover{color:#2f5a55;}
 :focus-visible{outline:2px solid #ffffff !important;outline-offset:2px;box-shadow:0 0 0 5px #171717 !important;}
+/* Room hotspots: no square focus box. Keyboard focus thickens the dot's own round ring instead. */
+[data-spot]{border-radius:50%;outline:none !important;}
+[data-spot]:focus,[data-spot]:focus-visible{outline:none !important;box-shadow:none !important;}
+[data-spot]:focus-visible > span:last-child{box-shadow:0 0 0 3px #3F746E, 0 2px 6px rgba(0,0,0,0.45) !important;}
 @keyframes scrollDot{0%{transform:translate(-50%,0);opacity:0}25%{opacity:1}70%{transform:translate(-50%,0.45em);opacity:0}100%{transform:translate(-50%,0.45em);opacity:0}}
 @keyframes spotPulse{0%{transform:scale(0.55);opacity:0.9}70%{transform:scale(1.35);opacity:0}100%{transform:scale(1.35);opacity:0}}
 @media (prefers-reduced-motion: reduce){*,*::before,*::after{transition-duration:0.01ms !important;animation:none !important;}}
