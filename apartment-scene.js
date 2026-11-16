@@ -404,12 +404,31 @@ function createApartment(canvas, o = {}) {
     return g;
   };
   hangFrame(poster1, 0.72, 0.96, -4.98, 1.7, -1.6, Math.PI / 2);
-  // a few empty frames on the entrance corridor wall, ready for your own photos
-  const blankFrameTex = canvasTex(380, 500, (x, w, h) => {
-    const g = x.createLinearGradient(0, 0, 0, h); g.addColorStop(0, '#f4efe6'); g.addColorStop(1, '#e7ded0');
-    x.fillStyle = g; x.fillRect(0, 0, w, h);
-  });
-  [5.2, 6.3, 7.4].forEach(z => hangFrame(blankFrameTex, 0.42, 0.56, 4.98, 1.7, z, -Math.PI / 2));
+  // photo frames on the wall beside the front door (inside the flat, facing the room)
+  // photoFrame shows `fallback` (a canvas texture) until the image loads, then crops the image to fill the frame
+  const photoFrame = (url, fallback, w, h, x, y, z, ry) => {
+    const g = group(x, y, z); g.rotation.y = ry;
+    add(B(w + 0.08, h + 0.08, 0.035), dark, 0, 0, 0, g);
+    add(B(w + 0.02, h + 0.02, 0.004), M('#f4efe6', { roughness: 0.9 }), 0, 0, 0.019, g, false);
+    const mat = new THREE.MeshStandardMaterial({ map: fallback, roughness: 0.85 });
+    add(new THREE.PlaneGeometry(w, h), mat, 0, 0, 0.022, g, false);
+    new THREE.TextureLoader().load(url, t => {
+      t.colorSpace = THREE.SRGBColorSpace; t.anisotropy = renderer.capabilities.getMaxAnisotropy();
+      const ia = t.image.width / t.image.height, fa = w / h;
+      if (ia > fa) { t.repeat.set(fa / ia, 1); t.offset.set((1 - fa / ia) / 2, 0); } else { t.repeat.set(1, ia / fa); t.offset.set(0, (1 - ia / fa) / 2); }
+      mat.map = t; mat.needsUpdate = true;
+    }, undefined, () => {});
+    return g;
+  };
+  const softTex = canvasTex(380, 500, (x, w, h) => { const g = x.createLinearGradient(0, 0, 0, h); g.addColorStop(0, '#efe7da'); g.addColorStop(1, '#dccfb9'); x.fillStyle = g; x.fillRect(0, 0, w, h); });
+  // photo collage: staggered sizes and heights so the wall reads as a gallery wall
+  const FRAME_Z = 3.975, FRAME_RY = Math.PI;
+  [
+    ['./assets/shruti-photo-v2.webp', 0.46, 0.61, 1.05, 1.82],
+    ['./assets/wall-photo-boat.jpg', 0.58, 0.74, 0.12, 1.62],
+    ['./assets/wall-photo-beach.jpg', 0.44, 0.59, -0.92, 1.9],
+    ['./assets/sofa-wall-photo.webp', 0.5, 0.66, -1.92, 1.68]
+  ].forEach(([url, w, h, x, y]) => photoFrame(url, softTex, w, h, x, y, FRAME_Z, FRAME_RY));
   // ceiling lights
   const ceilM = new THREE.MeshStandardMaterial({ color: '#fff7e8', emissive: '#ffe4bd', emissiveIntensity: 1.5, fog: false });
   const ceilLights = [[-2, -1.6], [2.6, 0.4], [2.8, 3.0]].map(([x, z]) => {
@@ -435,6 +454,7 @@ function createApartment(canvas, o = {}) {
     { title: 'Kiosk Experience', vis: 'dial', cols: ['#2c2a28', '#1b1a19'], glow: [0.5, 0.4, 'rgba(74,70,67,0.9)'] }
   ];
   const monScratch = document.createElement('canvas');
+  let monChrome = false; // desk-only labels (Esc pill, Scroll) drawn on the screen
   function drawMon() {
     const x = monTex.image.getContext('2d'), w = MW, h = MH;
     const rr = (c, px, py, pw, ph, r) => { c.beginPath(); c.moveTo(px + r, py); c.arcTo(px + pw, py, px + pw, py + ph, r); c.arcTo(px + pw, py + ph, px, py + ph, r); c.arcTo(px, py + ph, px, py, r); c.arcTo(px, py, px + pw, py, r); c.closePath(); };
@@ -444,10 +464,10 @@ function createApartment(canvas, o = {}) {
     x.setTransform(f, 0, 0, f, (w - Wv * f) / 2, (h - Hv * f) / 2);
     const fs = Math.max(14, Math.min(19, Wv / 76)), top = 3.6 * fs, drumH = Math.max(12 * fs, Hv - 7.4 * fs);
     const Wc = Math.min(Wv * 0.46, drumH * 0.66 * (560 / 422)), k = Wc / 560, S = Wc * 0.93, cx = Wv / 2, cy = top + 0.44 * drumH;
-    { const f2 = 0.78 * fs; x.font = '500 ' + f2.toFixed(2) + 'px ' + FONT_T; try { x.letterSpacing = '0px'; } catch (e) {}
+    if (monChrome) { const f2 = 0.78 * fs; x.font = '500 ' + f2.toFixed(2) + 'px ' + FONT_T; try { x.letterSpacing = '0px'; } catch (e) {}
       const lbl = 'Back to apartment · Esc', tw0 = x.measureText(lbl).width, ph = f2 * 1.2 + 1.1 * f2, pw = tw0 + 2.2 * f2, px0 = Wv - 1.6 * fs - pw, py0 = 1.2 * fs;
       rr(x, px0, py0, pw, ph, ph / 2); x.fillStyle = '#171717'; x.fill(); x.fillStyle = '#F4EFE6'; x.textBaseline = 'middle'; x.textAlign = 'left'; x.fillText(lbl, px0 + 1.1 * f2, py0 + ph / 2 + 0.5); }
-    x.font = '400 ' + (0.8 * fs).toFixed(2) + 'px ' + FONT_T; x.fillStyle = '#5e5244'; x.textAlign = 'center'; x.textBaseline = 'bottom'; x.fillText('Scroll', cx, Hv - 1.6 * fs); x.textAlign = 'left';
+    if (monChrome) { x.font = '400 ' + (0.8 * fs).toFixed(2) + 'px ' + FONT_T; x.fillStyle = '#5e5244'; x.textAlign = 'center'; x.textBaseline = 'bottom'; x.fillText('Scroll', cx, Hv - 1.6 * fs); x.textAlign = 'left'; }
     x.setTransform(1, 0, 0, 1, 0, 0); monTex.needsUpdate = true;
   }
   drawMon();
@@ -918,7 +938,9 @@ function createApartment(canvas, o = {}) {
   function stand() {
     if (mode !== 'seated' && mode !== 'sitting') return;
     tw = null; tvTarget = 0; movie.playing = false; o.onTv && o.onTv(false); emit('standing');
-    chain([{ x: -2, z: -1.3, y: 1.6, yaw: Math.PI, pitch: -0.05, dur: 1.2 }], () => emit('explore'));
+    // stand up in front of the sofa but keep looking at the TV, so the
+    // "Have a seat" prompt is right there if they want to watch again
+    chain([{ x: -2, z: -1.3, y: 1.6, yaw: 0, pitch: -0.05, dur: 1.0 }], () => emit('explore'));
   }
   function toDesk() {
     if (mode === 'desk') return;
@@ -1263,7 +1285,7 @@ function createApartment(canvas, o = {}) {
     let best = null;
     if (mode === 'explore' && !tw) {
       let bd = 1e9; const fx = -Math.sin(P.yaw), fz = -Math.cos(P.yaw);
-      Object.values(spots).forEach(s => { const dx = s.x - P.x, dz = s.z - P.z, d = Math.hypot(dx, dz); if (d < s.r && (dx * fx + dz * fz) / (d || 1) > 0.35 && d < bd) { bd = d; best = s.id; } });
+      Object.values(spots).forEach(s => { const dx = s.x - P.x, dz = s.z - P.z, d = Math.hypot(dx, dz); if (d < s.r && ((dx * fx + dz * fz) / (d || 1) > 0.35 || (s.id === 'sofa' && d < 1.3)) && d < bd) { bd = d; best = s.id; } });
     }
     if (best !== prompt) { prompt = best; o.onPrompt && o.onPrompt(prompt); }
     const zt = mode === 'seated' ? 1 : 0; fovZoom += (zt - fovZoom) * (reduce ? 1 : Math.min(1, rawDt * 1.5));
@@ -1273,7 +1295,10 @@ function createApartment(canvas, o = {}) {
     camera.position.set(P.x, P.y, P.z); camera.rotation.set(P.pitch, P.yaw, 0); camera.updateMatrixWorld();
     updClock();
     // desk screen rect
-    monScreen.material.color.setScalar(mode === 'desk' || mode === 'deskEnter' || mode === 'deskExit' ? 1 : 0);
+    // screen is on (showing the project carousel) from the moment you step inside; off only at the front door
+    const atDesk = mode === 'desk' || mode === 'deskEnter' || mode === 'deskExit';
+    if (atDesk !== monChrome) { monChrome = atDesk; drawMon(); }
+    monScreen.material.color.setScalar(mode === 'gate' || mode === 'ringing' ? 0 : 1);
     if (mode === 'desk' || mode === 'deskEnter' || mode === 'deskExit') {
       let scrBehind = false; const r = canvas.getBoundingClientRect(), pts = [[-0.43, 0.25], [0.43, 0.25], [-0.43, -0.25], [0.43, -0.25]].map(([dx, dy]) => { corner.set(SCREEN.x + dx, SCREEN.y + dy, SCREEN.z).project(camera); if (corner.z > 1 || corner.z < -1) scrBehind = true; return [(corner.x + 1) / 2 * r.width + r.left, (1 - corner.y) / 2 * r.height + r.top]; });
       const x0 = Math.min(...pts.map(p => p[0])), x1 = Math.max(...pts.map(p => p[0])), y0 = Math.min(...pts.map(p => p[1])), y1 = Math.max(...pts.map(p => p[1]));
