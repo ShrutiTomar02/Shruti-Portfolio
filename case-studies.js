@@ -240,7 +240,7 @@ window.CASE_STUDIES = {
         'Hologram combines a touchscreen interface with a holographic display, letting users control and explore 3D content in physical space rather than on a flat screen.',
         'I contributed to two experiences within the product: an interactive 3D real estate presentation, and an experimental AI-powered character interaction.'
       ],
-      meta: [['Role', 'UX/UI Designer'], ['Tool', 'Figma'], ['Project', 'Hologram'], ['Year', '2026']],
+      meta: [['Role', 'UX Designer'], ['Tool', 'Figma'], ['Project', 'Hologram'], ['Year', '2026']],
       image: false
     },
 
@@ -293,7 +293,7 @@ window.CASE_STUDIES = {
       text: [
         'An interactive real estate experience that brings virtual spaces to life through physical dial controls. Users can explore rooms, navigate virtual environments and customise interiors using the kiosk, while every interaction is reflected on a large display in real time.'
       ],
-      meta: [['Role', 'UX/UI Designer'], ['Project', 'Kiosk Experience'], ['Company', 'PropVR'], ['Year', '2026']],
+      meta: [['Role', 'UX Designer'], ['Project', 'Kiosk Experience'], ['Company', 'PropVR'], ['Year', '2026']],
       image: false
     },
 
