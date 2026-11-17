@@ -444,7 +444,7 @@ function createApartment(canvas, o = {}) {
   add(B(0.24, 0.012, 0.18), dark, 0, 0.781, -0.12, desk); add(B(0.05, 0.36, 0.03), dark, 0, 0.95, -0.15, desk);
   add(rbox(0.92, 0.56, 0.035, 0.01, 2), M('#1b1a19', { roughness: 0.4 }), 0, 1.2, -0.12, desk);
   const MW = 1024, MH = 596;
-  const monTex = canvasTex(MW, MH, (x, w, h) => { x.fillStyle = '#F4EFE6'; x.fillRect(0, 0, w, h); });
+  const monTex = canvasTex(MW, MH, (x, w, h) => { x.fillStyle = '#EAE0D1'; x.fillRect(0, 0, w, h); });
   monTex.anisotropy = 8;
   // Draws the same layout the full-screen carousel uses (same window size, same card math), letterboxed into the screen.
   const cardCv = document.createElement('canvas'); cardCv.width = 560; cardCv.height = 422 + 110;
@@ -458,16 +458,16 @@ function createApartment(canvas, o = {}) {
   function drawMon() {
     const x = monTex.image.getContext('2d'), w = MW, h = MH;
     const rr = (c, px, py, pw, ph, r) => { c.beginPath(); c.moveTo(px + r, py); c.arcTo(px + pw, py, px + pw, py + ph, r); c.arcTo(px + pw, py + ph, px, py + ph, r); c.arcTo(px, py + ph, px, py, r); c.arcTo(px, py, px + pw, py, r); c.closePath(); };
-    x.setTransform(1, 0, 0, 1, 0, 0); x.fillStyle = '#F4EFE6'; x.fillRect(0, 0, w, h);
+    x.setTransform(1, 0, 0, 1, 0, 0); x.fillStyle = '#EAE0D1'; x.fillRect(0, 0, w, h);
     const Wv = Math.max(320, window.innerWidth), Hv = Math.max(320, window.innerHeight), f = Math.min(w / Wv, h / Hv);
-    if (window.CarouselRender) { const ox = (w - Wv * f) / 2, oy = (h - Hv * f) / 2; window.CarouselRender.draw(x, Wv, Hv, 0, 0, { dpr: 1, place: [f, ox, oy], titles: true, scratch: monScratch }); x.setTransform(f, 0, 0, f, ox, oy); }
+    // Work screen: the centred hero until the visitor has scrolled down to the carousel (stage 3)
+    const HB = window.WorkHero, stage = HB ? (window.__heroStage == null ? 3 : window.__heroStage) : 3;
+    if (stage >= 3) { if (window.CarouselRender) { const ox = (w - Wv * f) / 2, oy = (h - Hv * f) / 2; window.CarouselRender.draw(x, Wv, Hv, 0, 0, { dpr: 1, place: [f, ox, oy], titles: true, scratch: monScratch }); } }
+    else { x.setTransform(f, 0, 0, f, (w - Wv * f) / 2, (h - Hv * f) / 2); HB.draw(x, Wv, Hv, stage); }
     x.setTransform(f, 0, 0, f, (w - Wv * f) / 2, (h - Hv * f) / 2);
     const fs = Math.max(14, Math.min(19, Wv / 76)), top = 3.6 * fs, drumH = Math.max(12 * fs, Hv - 7.4 * fs);
     const Wc = Math.min(Wv * 0.46, drumH * 0.66 * (560 / 422)), k = Wc / 560, S = Wc * 0.93, cx = Wv / 2, cy = top + 0.44 * drumH;
-    if (monChrome) { const f2 = 0.78 * fs; x.font = '500 ' + f2.toFixed(2) + 'px ' + FONT_T; try { x.letterSpacing = '0px'; } catch (e) {}
-      const lbl = 'Back to apartment · Esc', tw0 = x.measureText(lbl).width, ph = f2 * 1.2 + 1.1 * f2, pw = tw0 + 2.2 * f2, px0 = Wv - 1.6 * fs - pw, py0 = 1.2 * fs;
-      rr(x, px0, py0, pw, ph, ph / 2); x.fillStyle = '#171717'; x.fill(); x.fillStyle = '#F4EFE6'; x.textBaseline = 'middle'; x.textAlign = 'left'; x.fillText(lbl, px0 + 1.1 * f2, py0 + ph / 2 + 0.5); }
-    if (monChrome) { x.font = '400 ' + (0.8 * fs).toFixed(2) + 'px ' + FONT_T; x.fillStyle = '#5e5244'; x.textAlign = 'center'; x.textBaseline = 'bottom'; x.fillText('Scroll', cx, Hv - 1.6 * fs); x.textAlign = 'left'; }
+    if (monChrome && stage >= 3) { x.font = '400 ' + (0.8 * fs).toFixed(2) + 'px ' + FONT_T; x.fillStyle = '#765B4B'; x.textAlign = 'center'; x.textBaseline = 'bottom'; x.fillText('Scroll', cx, Hv - 1.6 * fs); x.textAlign = 'left'; }
     x.setTransform(1, 0, 0, 1, 0, 0); monTex.needsUpdate = true;
   }
   drawMon();
@@ -854,12 +854,12 @@ function createApartment(canvas, o = {}) {
 
   const marker = new THREE.Mesh(new THREE.RingGeometry(0.16, 0.22, 40), new THREE.MeshBasicMaterial({ color: '#9fd3c9', transparent: true, opacity: 0, depthWrite: false, fog: false }));
   marker.rotation.x = -Math.PI / 2; marker.position.y = 0.02; scene.add(marker); let markerT = 0;
-  const LABEL_POS = { sofa: [-2, 1.22, -0.25], desk: [3, 1.62, -3.5], door: [3, 2.45, 4.0], shelf: [4.85, 2.68, 1.7], lamp: [4.63, 1.98, -1.68], lamp2: [-3.78, 1.86, -0.35], lamp3: [3.78, 1.65, -3.62], bell: [3.86, 1.47, 4.23] };
+  const LABEL_POS = { sofa: [-2, 1.22, -0.25], desk: [3, 1.62, -3.5], shelf: [4.85, 2.68, 1.7], lamp: [4.63, 1.98, -1.68], lamp2: [-3.78, 1.86, -0.35], lamp3: [3.78, 1.65, -3.62], bell: [3.86, 1.47, 4.23] };
   let labelEls = null; const lv = new THREE.Vector3();
   /* ---------- spots (interactions) ---------- */
   const S = (id, x, z, r, sx, sz) => { spots[id] = { id, x, z, r, sx, sz }; };
   S('sofa', -2, -0.3, 2.1, -2, -1.3); S('desk', 3, -3.4, 2.0, 3, -1.9);
-  S('shelf', 4.75, 1.7, 2.4, 3.35, 1.7); S('door', 3, 4.0, 1.7, 3, 2.7);
+  S('shelf', 4.75, 1.7, 2.4, 3.35, 1.7);
   S('lamp', 4.68, -1.9, 1.35, 4.1, -2.4); S('lamp2', -3.78, -0.35, 1.3, -3.6, -1.2);
 
   /* ---------- state ---------- */
@@ -959,6 +959,19 @@ function createApartment(canvas, o = {}) {
       tw = { path: pts, cum, L, yaw0: P.yaw, pitch0: P.pitch, t: 0, dur: reduce ? 0.4 : clamp(1.4 + L / 1.5, 2.2, 6), done: () => emit('desk') };
     };
     if (pre.length) chain(pre, go); else go();
+  }
+  // Opening shot: from the front door, one unbroken glide through the open
+  // door and straight into the desk monitor (no bell, no stops).
+  function intro() {
+    if (mode !== 'gate') return;
+    doorV = 1; doorCol.on = true;
+    const path = route([3, 3.45], [3, -1.9]);
+    emit('deskEnter');
+    const pts = [{ x: P.x, y: P.y, z: P.z }, { x: 3, y: 1.6, z: 3.45 }];
+    path.forEach(p => { if (Math.hypot(p[0] - 3, p[1] + 1.9) > 0.05) pts.push({ x: p[0], y: 1.6, z: p[1] }); });
+    pts.push({ x: 3, y: 1.45, z: -1.9 }, { x: DESK_VIEW.x, y: DESK_VIEW.y, z: DESK_VIEW.z }, { x: SCREEN.x, y: SCREEN.y, z: deskEnterZ() });
+    const cum = [0]; for (let i = 1; i < pts.length; i++) cum.push(cum[i - 1] + Math.hypot(pts[i].x - pts[i - 1].x, pts[i].y - pts[i - 1].y, pts[i].z - pts[i - 1].z));
+    tw = { path: pts, cum, L: cum[cum.length - 1], yaw0: P.yaw, pitch0: P.pitch, t: 0, dur: reduce ? 0.4 : 4.6, done: () => emit('desk') };
   }
   const DESK_VIEW = { x: 3, z: -2.82, y: 1.2, yaw: 0, pitch: 0 }, SCREEN = { x: 3, y: 1.2, z: -3.6, w: 0.86, h: 0.5 };
   let deskT = 0;
@@ -1326,9 +1339,10 @@ function createApartment(canvas, o = {}) {
   setTimeout(() => o.onReady && o.onReady(), 50);
 
   return {
-    ring: () => startFromGate(), sit, stand, toDesk, leaveDesk, goTo, restart, interact,
+    ring: () => startFromGate(), intro, sit, stand, toDesk, leaveDesk, goTo, restart, interact,
     setTime: (n, i) => setTime(n, i), setInput: v => { inputOn = v; if (!v) onBlur(); }, setJoy: (x, y, t = 0) => { joy = { x, y, t }; },
     play: playMovie, pause: pauseMovie, skip: skipMovie, replay, tvOff: () => { tvTarget = 0; movie.playing = false; },
+    redrawMon: () => drawMon(),
     refreshText: () => { shelfTexLate.forEach(t => t.userData.redraw()); plateTex.userData.redraw(); monTex.userData.redraw(); poster1.userData.redraw(); shelfTex.forEach(t => t.userData.redraw()); },
     toShelf, leaveShelf, closeBook, clickItem: handleItem, toggleLamp, isLampOn: (id) => isOn(id || 'lamp'), setPhoto, ejectAlbum: () => { if (onPlayer != null && !albBusy()) { albums[onPlayer].m.target = 0; onPlayer = null; } queueAlb = null; }, setPlayback: st => { playState = st; }, hasOpenBook: () => selBook != null || pendBook != null, books: BOOKS, albums: ALBUMS,
     getMode: () => mode, getPrompt: () => prompt, film: FILM, setLabels: (m) => { labelEls = m; }, walkTo: walkToPoint, debug: () => ({ x: +P.x.toFixed(2), z: +P.z.toFixed(2), yaw: +P.yaw.toFixed(2), vx: +vel.x.toFixed(2), vz: +vel.y.toFixed(2), keys: { ...keys }, joy: { ...joy }, down: !!down, tw: !!tw, inputOn, blocked: blocked(P.x, P.z, 0.28) }), 

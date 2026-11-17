@@ -1,7 +1,7 @@
 /* Shared renderer for the project carousel: used by the full-screen portfolio and by the monitor texture in the apartment,
    so both always show the identical layout. Cards are drawn as vertical strips so their top/bottom edges can bend. */
 (function () {
-  const FD = "'Bricolage Grotesque', 'Helvetica Neue', sans-serif", FT = "'Space Grotesk', 'Helvetica Neue', sans-serif";
+  const FD = "'Bricolage Grotesque', 'Helvetica Neue', sans-serif", FT = "'Space Grotesk', 'Helvetica Neue', sans-serif", FI = "'Inter', 'Helvetica Neue', sans-serif";
   const CARDS = [
     { title: 'Arth', desc: 'AI powered Mutual Investment App', year: '2026', num: '01', cat: 'Personal project', vis: 'arth', cols: ['#5b3fd0', '#3f229e', '#7d68dc'], glow: [0.7, 0.2, 'rgba(143,120,238,0.9)'] },
     { title: 'PropVR Website', desc: 'Product website redesign', year: '2026', num: '02', cat: 'Product design', vis: 'browser', cols: ['#1d1e23', '#121317'], glow: [0.8, 1, 'rgba(183,159,120,0.35)'] },
@@ -40,7 +40,7 @@
     const key = i + ':' + w + 'x' + h + ':' + (thumb() ? 1 : 0) + (imgOf('[data-propvr-thumb]') ? 1 : 0) + (imgOf('[data-exp-thumb]') ? 1 : 0) + (imgOf('[data-dial-thumb]') ? 1 : 0); let e = cache[i];
     if (e && e.key === key) return e.cv;
     const cv = (e && e.cv) || document.createElement('canvas'); cv.width = w; cv.height = h;
-    const c = cv.getContext('2d'); c.clearRect(0, 0, w, h); c.save(); rr(c, 0, 0, w, h, Math.max(2, w * 0.008)); c.clip(); art(c, CARDS[i], w, h); c.restore();
+    const c = cv.getContext('2d'); c.clearRect(0, 0, w, h); c.save(); rr(c, 0, 0, w, h, Math.max(6, w * 0.026)); c.clip(); art(c, CARDS[i], w, h); c.restore();
     cache[i] = { key, cv }; return cv;
   }
   // Layout for a viewport of W x H css px. Settled: one flat centre card, a partly visible card each side.
@@ -48,7 +48,7 @@
     const portrait = W / H < 1;
     const CW = portrait ? W * 0.74 : Math.min(W * 0.4725, H * 0.84), CH = CW / 1.754, gap = portrait ? W * 0.05 : W * 0.048;
     const fs = Math.max(14, Math.min(19, W / 76));
-    return { W, H, CW, CH, gap, step: CW + gap, cx: W / 2, cy: H * 0.53, h0: CW / 2 + gap * 0.6, titleSize: Math.max(17, CW * 0.032), descSize: Math.max(12, CW * 0.016), metaSize: Math.max(10.5, CW * 0.0135), fs };
+    return { W, H, CW, CH, gap, step: CW + gap, cx: W / 2, cy: H * 0.53, h0: CW / 2 + gap * 0.6, titleSize: Math.max(17, CW * 0.032), descSize: Math.max(13.5, CW * 0.0188), metaSize: Math.max(10.5, CW * 0.0135), fs };
   }
   // vertical stretch at screen x: flat in the centre band, curving outward toward the edges; more while moving
   function flatHalf(L, vel) { const av = Math.min(4, Math.abs(vel || 0)); return Math.max(L.CW * 0.18, L.h0 - av * L.CW * 0.09); }
@@ -66,7 +66,8 @@
     return { gap, yl, yr, angL, angR, dTitle: L.descSize * 1.7, al: Math.max(0.3, fade * alphaAt(L, g.x0 + w / 2)), alR: Math.max(0.3, fade * alphaAt(L, g.x1 - 10)),
       descBase: yl - gap, titleBase: yl - gap - L.descSize * 1.7, titleBaseR: yr - gap - L.descSize * 1.7 };
   }
-  function offset(i, cur) { let o = ((i - cur) % 4 + 4) % 4; if (o > 2) o -= 4; return o; }
+  // straight row (no wrap-around): the first project has nothing to its left, the last nothing to its right
+  function offset(i, cur) { return i - cur; }
   // Returns per-card geometry (for hit areas and titles) and draws to ctx (already scaled to css px).
   function draw(ctx, W, H, cur, vel, opt) {
     opt = opt || {}; const L = layout(W, H), dpr = opt.dpr || 1, out = [];
@@ -88,17 +89,22 @@
         if (flat) xe = Math.min(b, fr); else xe = Math.min(b, x + SW, x < fl ? Math.max(x + 0.5, fl) : b);
         const xm = (x + xe) / 2, k = bendAt(L, xm, vel), hh = L.CH * k;
         const u0 = (x - x0) / L.CW * cw, u1 = (xe - x0) / L.CW * cw;
-        s.drawImage(cv, u0, 0, Math.max(0.5, u1 - u0), ch, x, L.cy - hh / 2, xe - x + (flat ? 0 : 0.4), hh);
+        s.drawImage(cv, u0, 0, Math.max(0.5, u1 - u0), ch, x, L.cy - hh / 2 - 1, xe - x + (flat ? 0 : 0.4), hh + 2);
         x = xe;
       }
       s.globalAlpha = 1;
+      { const tAt = xx => L.cy - L.CH * bendAt(L, xx, vel) / 2, bAt = xx => L.cy + L.CH * bendAt(L, xx, vel) / 2, st = 2;
+        s.save(); s.globalCompositeOperation = 'destination-out'; s.fillStyle = '#000';
+        s.beginPath(); s.moveTo(a - 1, -4); for (let xx = a - 1; xx <= b + 1; xx += st) s.lineTo(xx, tAt(Math.min(b, Math.max(a, xx)))); s.lineTo(b + 1, tAt(b)); s.lineTo(b + 1, -4); s.closePath(); s.fill();
+        s.beginPath(); s.moveTo(a - 1, H + 4); for (let xx = a - 1; xx <= b + 1; xx += st) s.lineTo(xx, bAt(Math.min(b, Math.max(a, xx)))); s.lineTo(b + 1, bAt(b)); s.lineTo(b + 1, H + 4); s.closePath(); s.fill();
+        s.restore(); }
       if (hov) { s.save(); s.globalCompositeOperation = 'source-atop'; s.fillStyle = 'rgba(255,255,255,0.07)'; s.fillRect(a, 0, b - a, H); s.restore(); }
       g.topAt = xx => L.cy - L.CH * bendAt(L, xx, vel) / 2; g.botAt = xx => L.cy + L.CH * bendAt(L, xx, vel) / 2;
     }
     { s.setTransform(1, 0, 0, 1, 0, 0); const g = s.createLinearGradient(0, 0, pw, 0); for (let j = 0; j <= 24; j++) { const xx = W * j / 24; g.addColorStop(j / 24, 'rgba(0,0,0,' + alphaAt(L, xx).toFixed(3) + ')'); } s.globalCompositeOperation = 'destination-in'; s.fillStyle = g; s.fillRect(0, 0, pw, ph); s.globalCompositeOperation = 'source-over'; }
     const P = opt.place || [dpr, 0, 0], k = P[0] / dpr;
     let src = sharp;
-    if (!opt.noBlur && 'filter' in s) {
+    if (!opt.noBlur && 'filter' in s && Math.abs(vel || 0) < 0.02) {
       const bl = draw._b = draw._b || document.createElement('canvas'), sh = draw._c = draw._c || document.createElement('canvas');
       [bl, sh].forEach(c => { if (c.width !== pw || c.height !== ph) { c.width = pw; c.height = ph; } });
       const B = bl.getContext('2d'), C = sh.getContext('2d'), band = Math.min(L.W * 0.12, Math.max(0, L.cx - L.CW / 2 - L.gap * 0.5)) * dpr, rad = Math.max(0.8, L.W * 0.0014) * dpr;
@@ -119,9 +125,9 @@
           ctx.save(); ctx.translate(mid, y); ctx.rotate(ang); ctx.fillText(c2, -(ws[j] - ls) / 2, 0); ctx.restore(); px += ws[j]; });
       };
       out.forEach(g => { if (!g.vis) return; const c = CARDS[g.i], lb = labelBox(L, g, vel);
-        curved(c.title, g.x0, lb.gap + lb.dTitle, '500 ' + L.titleSize.toFixed(1) + 'px ' + FD, '#171717', lb.al, -0.02 * L.titleSize, false);
-        curved(c.desc, g.x0, lb.gap, '400 ' + L.descSize.toFixed(1) + 'px ' + FT, '#5e5244', lb.al, 0, false);
-        curved(c.year, g.x1, lb.gap + lb.dTitle, '500 ' + L.descSize.toFixed(1) + 'px ' + FT, '#5e5244', lb.alR, 0, true); });
+        curved(c.title, g.x0, lb.gap + lb.dTitle, '500 ' + L.titleSize.toFixed(1) + 'px ' + FD, '#392C27', lb.al, -0.02 * L.titleSize, false);
+        curved(c.desc, g.x0, lb.gap, '400 ' + L.descSize.toFixed(1) + 'px ' + FI, '#765B4B', lb.al, 0, false);
+        curved(c.year, g.x1, lb.gap + lb.dTitle, '500 ' + (L.descSize * 0.86).toFixed(1) + 'px ' + FI, '#765B4B', lb.alR, 0, true); });
       ctx.globalAlpha = 1;
       ctx.restore();
     }
