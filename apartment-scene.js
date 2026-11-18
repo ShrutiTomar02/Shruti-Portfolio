@@ -104,7 +104,7 @@ function createApartment(canvas, o = {}) {
   });
   wood.wrapS = wood.wrapT = THREE.RepeatWrapping; wood.repeat.set(2.5, 2.5);
   const walnut = M('#6b4a33', { roughness: 0.6 }), dark = M('#2b2621', { roughness: 0.55 }), black = M('#141312', { roughness: 0.4 });
-  const wallM = M('#ebe1d1', { roughness: 0.95 }), trimM = M('#f4efe6'), corrM = M('#b19bd6', { roughness: 0.85 });
+  const wallM = M('#ebe1d1', { roughness: 0.95 }), trimM = M('#f4efe6'), corrM = M('#ebe1d1', { roughness: 0.95 });
   const brass = M('#c9a25c', { roughness: 0.35, metalness: 0.7 }), teal = M('#3F746E', { roughness: 0.9 }), cream = M('#efe3cf', { roughness: 0.95 });
   const terracotta = M('#b8643f', { roughness: 0.9 }), leaf = M('#4f7a4a', { roughness: 0.8 }), leaf2 = M('#6b9a5a', { roughness: 0.8 });
 

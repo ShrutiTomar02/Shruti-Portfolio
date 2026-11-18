@@ -1,6 +1,7 @@
 <!DOCTYPE html>
 <html><head>
 <meta charset="utf-8">
+<base href="/">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <script src="support.js"></script>
 </head>
@@ -599,6 +600,21 @@ header span, header nav, header button{animation:navIn 0.45s ease both;}
           <sc-if value="{{ cs.hasNext }}" hint-placeholder-val="{{ true }}"><button type="button" onClick="{{ csNext }}" aria-label="Next project: {{ cs.next.title }}" style="flex:{{ csNavFlex }};min-width:0;display:flex;align-items:{{ csNavBtnAlign }};gap:{{ csArrowGap }};padding:0 0 {{ csNavPadB }};border:0;background:transparent;color:#392C27;cursor:pointer;font-family:'Inter',sans-serif;justify-content:{{ cs.nextJustify }};text-align:{{ cs.nextAlign }};" style-hover="color:#765B4B;" style-focus="outline:2px solid #392C27;outline-offset:6px;"><span style="display:flex;flex-direction:column;gap:8px;"><span style="font-size:12px;line-height:1.3;color:#765B4B;">Next project</span><span style="font-family:'Bricolage Grotesque',sans-serif;font-weight:500;font-size:{{ csNavTitleFs }};letter-spacing:-0.03em;line-height:1.1;">{{ cs.next.title }}</span></span><svg aria-hidden="true" width="48" height="16" viewBox="0 0 48 16" fill="none" style="width:{{ csArrowW }};flex:none;margin-bottom:{{ csArrowMb }};"><path d="M0 8h46M39 1l7 7-7 7" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"></path></svg></button></sc-if>
         </div>
       </div>
+      <footer style="position:relative;box-sizing:border-box;margin-left:calc(0px - {{ csIndexPad }});width:calc(100% + {{ csIndexPad }});min-height:100vh;min-height:100svh;display:flex;flex-direction:column;margin-top:clamp(40px,7vh,72px);background:#392C27;font-family:'Inter',sans-serif;color:#EAD8C5;">
+        <svg aria-hidden="true" viewBox="0 0 1440 40" preserveAspectRatio="none" style="position:absolute;left:0;top:calc(-1 * clamp(22px,3vw,34px) + 1px);display:block;width:100%;height:clamp(22px,3vw,34px);"><path d="M0 40 L0.0 12.7 L6.7 14.4 L17.8 8.4 L24.7 13.1 L32.9 15.5 L42.9 22.4 L51.8 7.5 L66.0 10.2 L75.7 10.1 L83.7 16.2 L95.6 13.4 L108.6 10.9 L123.3 16.8 L130.5 13.0 L141.4 8.5 L153.1 18.5 L165.1 15.0 L180.5 13.7 L193.5 15.8 L202.4 12.6 L213.0 5.5 L226.7 9.6 L241.4 9.0 L256.2 17.8 L266.4 12.3 L273.9 10.1 L284.8 15.1 L294.9 12.4 L307.8 14.2 L314.4 18.8 L328.4 12.7 L340.7 5.6 L348.3 7.1 L355.8 9.2 L370.6 12.6 L380.1 15.0 L396.0 13.6 L403.0 12.1 L410.6 8.3 L418.1 14.3 L433.9 18.4 L443.5 10.0 L457.3 12.0 L473.2 18.2 L486.6 10.7 L492.9 8.3 L505.8 19.5 L521.7 19.5 L530.0 10.4 L545.0 18.1 L559.0 9.0 L572.8 17.0 L586.7 12.0 L596.6 12.8 L604.3 12.7 L618.4 9.8 L631.0 12.2 L637.1 19.7 L652.4 13.2 L660.5 11.0 L672.4 11.1 L687.5 12.2 L702.6 13.0 L713.9 13.2 L721.7 8.0 L732.4 16.7 L743.6 14.7 L755.2 11.0 L766.3 14.7 L776.7 15.4 L789.7 13.4 L805.1 16.4 L813.7 14.7 L821.0 9.5 L829.5 8.9 L844.4 9.9 L851.9 18.6 L867.4 12.8 L881.7 9.9 L891.1 10.3 L897.3 14.6 L906.6 15.5 L922.5 17.5 L931.1 8.5 L938.4 13.1 L947.0 9.8 L960.0 10.3 L970.2 8.9 L984.3 9.0 L998.9 13.4 L1014.2 11.0 L1022.5 4.8 L1030.6 11.7 L1039.5 12.1 L1045.6 12.6 L1057.2 10.3 L1064.2 17.8 L1078.6 12.7 L1094.4 12.1 L1106.7 12.9 L1114.0 8.8 L1121.7 9.0 L1134.4 11.4 L1145.0 9.9 L1160.6 19.7 L1176.3 11.7 L1186.1 13.7 L1197.1 8.1 L1207.1 6.2 L1215.4 15.0 L1228.0 16.6 L1237.3 21.3 L1249.7 8.5 L1262.0 16.8 L1273.2 14.1 L1287.5 15.0 L1300.4 7.0 L1310.0 9.3 L1322.3 15.5 L1328.3 17.6 L1339.7 17.5 L1348.2 8.9 L1356.3 16.9 L1366.1 13.7 L1378.3 12.0 L1386.8 16.9 L1392.9 8.7 L1405.8 16.1 L1416.5 16.6 L1424.5 19.7 L1435.1 17.8 L1440.0 14.0 L1440 40 Z" fill="#392C27"/></svg>
+        <div style="box-sizing:border-box;flex:1;width:min(1180px, calc(100% - 48px));margin:0 auto;padding:clamp(120px,19vh,180px) 0 clamp(32px,6vh,56px);display:flex;flex-direction:column;justify-content:flex-start;gap:0;">
+          <p aria-label="Let’s create something great together." style="margin:0;font-family:'Bricolage Grotesque',sans-serif;font-weight:500;font-size:clamp(36px,5.2vw,76px);line-height:1.12;letter-spacing:-0.03em;color:#EAD8C5;">Let’s <span ref="{{ csFootWordRef }}" style="position:relative;display:inline-block;vertical-align:top;overflow:hidden;height:1.24em;margin-bottom:-0.12em;width:3.05em;transition:width 0.45s cubic-bezier(0.22,0.8,0.24,1);"><span data-fw="0" aria-hidden="true" style="position:absolute;left:0;top:0;white-space:nowrap;color:#A96E4D;transform:perspective(400px) translateY(0) rotateX(0deg);transform-origin:50% 50%;backface-visibility:hidden;opacity:1;transition:transform 0.55s cubic-bezier(0.22,0.8,0.24,1), opacity 0.35s ease;">create</span><span data-fw="1" aria-hidden="true" style="position:absolute;left:0;top:0;white-space:nowrap;color:#A96E4D;transform:perspective(400px) translateY(60%) rotateX(-90deg);transform-origin:50% 50%;backface-visibility:hidden;opacity:0;transition:transform 0.55s cubic-bezier(0.22,0.8,0.24,1), opacity 0.35s ease;">design</span><span data-fw="2" aria-hidden="true" style="position:absolute;left:0;top:0;white-space:nowrap;color:#A96E4D;transform:perspective(400px) translateY(60%) rotateX(-90deg);transform-origin:50% 50%;backface-visibility:hidden;opacity:0;transition:transform 0.55s cubic-bezier(0.22,0.8,0.24,1), opacity 0.35s ease;">build</span></span><span aria-hidden="true" style="display:{{ footWordBreak }};"></span> something<br>great together.</p>
+          <div style="display:flex;flex-direction:column;align-items:flex-start;gap:0;flex:1;margin-top:clamp(40px,7vh,80px);">
+            <nav aria-label="Elsewhere" style="display:flex;flex-direction:column;align-items:flex-start;gap:clamp(6px,1.4vh,14px);">
+              <a href="{{ footLi }}" target="_blank" rel="noopener" tabindex="0" style="display:inline-block;font-family:'Inter',sans-serif;font-size:clamp(28px,3.4vw,48px);font-weight:400;line-height:1.15;letter-spacing:-0.01em;color:#EAD8C5;text-decoration:none;transition:transform 0.3s cubic-bezier(0.22,0.8,0.24,1), color 0.25s ease;" style-hover="transform:translateX(10px);color:#FFFFFF;">LinkedIn</a>
+              <a href="{{ footBe }}" target="_blank" rel="noopener" tabindex="0" style="display:inline-block;font-family:'Inter',sans-serif;font-size:clamp(28px,3.4vw,48px);font-weight:400;line-height:1.15;letter-spacing:-0.01em;color:#EAD8C5;text-decoration:none;transition:transform 0.3s cubic-bezier(0.22,0.8,0.24,1), color 0.25s ease;" style-hover="transform:translateX(10px);color:#FFFFFF;">Behance</a>
+              <a href="{{ footGh }}" target="_blank" rel="noopener" tabindex="0" style="display:inline-block;font-family:'Inter',sans-serif;font-size:clamp(28px,3.4vw,48px);font-weight:400;line-height:1.15;letter-spacing:-0.01em;color:#EAD8C5;text-decoration:none;transition:transform 0.3s cubic-bezier(0.22,0.8,0.24,1), color 0.25s ease;" style-hover="transform:translateX(10px);color:#FFFFFF;">GitHub</a>
+              <span style="display:inline-flex;align-items:center;flex-wrap:{{ emailWrap }};gap:4px {{ emailGap }};max-width:100%;"><a href="mailto:{{ footEmail }}" tabindex="0" style="display:inline-block;font-family:'Inter',sans-serif;font-size:{{ emailFs }};font-weight:400;line-height:1.15;letter-spacing:-0.01em;color:#EAD8C5;text-decoration:none;white-space:nowrap;transition:transform 0.3s cubic-bezier(0.22,0.8,0.24,1), color 0.25s ease;" style-hover="transform:translateX(10px);color:#FFFFFF;">{{ footEmail }}</a><button type="button" onClick="{{ copyEmail }}" tabindex="0" aria-label="Copy email address" title="Copy email" style="display:inline-flex;align-items:center;gap:6px;padding:6px;border:0;border-radius:10px;background:transparent;color:#EAD8C5;cursor:pointer;font-family:'Inter',sans-serif;font-size:15px;" style-hover="color:#A96E4D;"><svg aria-hidden="true" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><rect x="8" y="8" width="12" height="12" rx="2.5"/><path d="M16 8V6.5A2.5 2.5 0 0 0 13.5 4h-7A2.5 2.5 0 0 0 4 6.5v7A2.5 2.5 0 0 0 6.5 16H8"/></svg><span aria-live="polite" style="color:#A96E4D;">{{ copiedLabel }}</span></button></span>
+            </nav>
+            <span style="margin-top:auto;padding-top:40px;align-self:{{ copyAlignSelf }};font-size:14px;line-height:1.5;color:rgba(234,216,197,0.72);text-align:{{ copyAlign }};white-space:{{ copyWrap }};">Thoughtfully designed, personally built by Shruti.<span style="display:{{ copyBreak }};"> </span>© 2026 · All rights reserved.</span>
+          </div>
+        </div>
+      </footer>
     </article>
   </div>
 </sc-if>
@@ -609,7 +625,7 @@ header span, header nav, header button{animation:navIn 0.45s ease both;}
 class Component extends DCLogic {
   state = { loading: true, mode: 'gate', prompt: null, dialog: null, toast: null, playing: false, ended: false, line: '', cc: false, narrate: false, muted: false, help: false, overlay: null, open: null, openFrom: null, pIdx: 0, time: 'morning', noGL: false, touch: false, narrow: false, goOpen: false, interest: 0, aboutKicker: '', deskOn: false, visited: false, live: '', hero: 0 };
   menuWrapRef = React.createRef();
-  canvasRef = React.createRef(); deskRef = React.createRef(); heroRef = React.createRef(); cueRef = React.createRef(); objRef = React.createRef(); objCanvasRef = React.createRef(); aboutRef = React.createRef(); footWordRef = React.createRef(); footRef = React.createRef(); carHintRef = React.createRef(); tvRef = React.createRef(); ytHostRef = React.createRef(); csRef = React.createRef(); csProgRef = React.createRef();
+  canvasRef = React.createRef(); deskRef = React.createRef(); heroRef = React.createRef(); cueRef = React.createRef(); objRef = React.createRef(); objCanvasRef = React.createRef(); aboutRef = React.createRef(); footWordRef = React.createRef(); csFootWordRef = React.createRef(); footRef = React.createRef(); carHintRef = React.createRef(); tvRef = React.createRef(); ytHostRef = React.createRef(); csRef = React.createRef(); csProgRef = React.createRef();
   PROJECTS = [
     { slug: 'arth', title: 'Arth', subtitle: 'AI powered Mutual Investment App', year: '2026', summary: 'A concept focused on simplifying mutual fund investing and making financial decisions easier to understand.', category: 'Personal Project', bg: '#3f229e', bar: 'rgba(63,34,158,0.88)', panel: '#4b2db0', ink: '#ffffff', sub: '#d9d0ff', line: 'rgba(255,255,255,0.3)', thumb: '#5b3fd0' },
     { slug: 'propvr-website', title: 'PropVR Website', subtitle: 'Product website redesign', year: '2026', summary: 'A website redesign focused on presenting products and digital experiences clearly.', category: 'Product Design', bg: '#16171b', bar: 'rgba(22,23,27,0.88)', panel: '#22232a', ink: '#f4efe6', sub: '#cdbf9f', line: 'rgba(244,239,230,0.22)', thumb: '#1d1e23' },
@@ -1092,26 +1108,31 @@ class Component extends DCLogic {
   legacyCopy(t) { try { const ta = document.createElement('textarea'); ta.value = t; ta.style.position = 'fixed'; ta.style.opacity = '0'; document.body.appendChild(ta); ta.select(); document.execCommand('copy'); ta.remove(); } catch (e) {} }
   // footer: "Let's ___ something great together" — the word rolls every second (create → design → build), no re-render
   startFootWords() {
-    clearInterval(this.footT); let i = 0;
+    clearInterval(this.footT);
     if (this.reduce) return;
-    const fit = () => { const box = this.footWordRef.current, f = box && box.querySelector('[data-fw="0"]'); if (f && f.offsetWidth) box.style.width = (f.offsetWidth + 2) + 'px'; };
-    setTimeout(fit, 300); if (document.fonts && document.fonts.ready) document.fonts.ready.then(fit);
-    this.footT = setInterval(() => {
-      const box = this.footWordRef.current; if (!box || !this.state.aboutOn) return;
+    // the About footer and the case study footer each flip their own word
+    const boxes = [[this.footWordRef, () => this.state.aboutOn], [this.csFootWordRef, () => !!this.state.open]];
+    const fit = box => { const f = box && box.querySelector('[data-fw="0"]'); if (f && f.offsetWidth && !box.style.width.endsWith('px')) box.style.width = (f.offsetWidth + 2) + 'px'; };
+    const fitAll = () => boxes.forEach(([r]) => fit(r.current));
+    setTimeout(fitAll, 300); if (document.fonts && document.fonts.ready) document.fonts.ready.then(fitAll);
+    const FT = 'transform 0.6s cubic-bezier(0.22,0.8,0.24,1), opacity 0.45s ease';
+    this.footT = setInterval(() => boxes.forEach(([r, on]) => {
+      const box = r.current; if (!box || !on()) return;
+      fit(box);
       const els = box.querySelectorAll('[data-fw]'); if (!els.length) return;
-      const cur = els[i], nx = els[(i + 1) % els.length]; i = (i + 1) % els.length;
+      // the case study footer is re-created for every project, so keep the position on the element itself
+      const i = +(box.dataset.fi || 0), cur = els[i], nx = els[(i + 1) % els.length]; box.dataset.fi = (i + 1) % els.length;
       // set the transition explicitly: clearing it with '' would delete the inline one and the swap would become instant
-      const FT = 'transform 0.6s cubic-bezier(0.22,0.8,0.24,1), opacity 0.45s ease';
       // flip from bottom to top: the new word rotates up into place while the old one rotates away over the top
       nx.style.transition = 'none'; nx.style.transform = 'perspective(400px) translateY(60%) rotateX(-90deg)'; nx.style.opacity = '0'; void nx.offsetWidth;
       nx.style.transition = FT; cur.style.transition = FT; cur.style.transform = 'perspective(400px) translateY(-60%) rotateX(90deg)'; cur.style.opacity = '0'; nx.style.transform = 'perspective(400px) translateY(0) rotateX(0deg)'; nx.style.opacity = '1';
       const wNew = nx.offsetWidth + 2, wOld = parseFloat(box.style.width) || 0;
       if (wNew >= wOld) { box.style.transition = 'none'; box.style.width = wNew + 'px'; void box.offsetWidth; box.style.transition = 'width 0.45s cubic-bezier(0.22,0.8,0.24,1)'; } else box.style.width = wNew + 'px';
-    }, 1000);
+    }), 1000);
   }
   syncFoot() { const f = this.footRef.current, t = f ? f.getBoundingClientRect().top : 1e9; const h = window.innerHeight, on = this.state.footOn ? t < h * 0.58 : t < h * 0.42, full = this.state.footFull ? t < 56 : t < 24; if (on !== !!this.state.footOn || full !== !!this.state.footFull) this.setState({ footOn: on, footFull: full }); }
-  goContact() { const was = this.state.aboutOn; this.goAbout(); setTimeout(() => { const a = this.aboutRef.current, f = this.footRef.current; if (a && f) a.scrollTo({ top: f.offsetTop, behavior: this.reduce ? 'auto' : 'smooth' }); }, was ? 0 : 750); }
-  goAbout() { if ((this.scrollTarget || 0) < 2) this.setScroll(2); const last = this.PROJECTS.length - 1; this.workTarget = this.workCur = last; this.wVel = 0; this.setState({ pIdx: last }); requestAnimationFrame(() => this.applyCards()); this.showAbout(true); }
+  goContact() { const was = this.state.aboutOn; this.goAbout(false); setTimeout(() => { const a = this.aboutRef.current, f = this.footRef.current; if (a && f) a.scrollTo({ top: f.offsetTop, behavior: this.reduce ? 'auto' : 'smooth' }); }, was ? 0 : 750); }
+  goAbout(toTop = true) { if ((this.scrollTarget || 0) < 2) this.setScroll(2); const last = this.PROJECTS.length - 1; this.workTarget = this.workCur = last; this.wVel = 0; this.setState({ pIdx: last }); requestAnimationFrame(() => this.applyCards()); if (this.state.aboutOn) { const el = this.aboutRef.current; if (toTop && el && el.scrollTop > 0) el.scrollTo({ top: 0, behavior: this.reduce ? 'auto' : 'smooth' }); return; } this.showAbout(true); }
   showAbout(on) {
     if (!!this.state.aboutOn === on) return;
     this.setState({ aboutOn: on }); this.quietAfterStep();
@@ -1235,7 +1256,7 @@ class Component extends DCLogic {
   }
   openCase(i, from, how) {
     if (!this.state.open) this.caseFocus = document.activeElement;
-    const p = this.PROJECTS[i], url = '#/work/' + p.slug;
+    const p = this.PROJECTS[i], url = '/work/' + p.slug + location.search;
     try { if (how === 'replace' || how === 'none') { if (how === 'replace') history.replaceState({ cs: p.slug }, '', url); } else { history.pushState({ cs: p.slug }, '', url); this.casePushed = true; } } catch (e) {}
     document.title = p.title + ' — Case study · Shruti Tomar';
     this.setState({ open: p.slug, pIdx: i, csToc: false, openFrom: from || this.state.openFrom || (this.state.overlay === 'classic' ? 'classic' : 'projects') });
@@ -1249,7 +1270,7 @@ class Component extends DCLogic {
     // (hotspots stopped responding) until a hard reload.
     this.doCloseCase();
     if (this.casePushed) { this.casePushed = false; try { history.back(); return; } catch (e) {} }
-    try { history.replaceState(null, '', location.pathname + location.search); } catch (e) {}
+    try { history.replaceState(null, '', '/' + location.search); } catch (e) {}
   };
   doCloseCase() {
     if (!this.state.open) return;
@@ -1261,7 +1282,10 @@ class Component extends DCLogic {
     const lf = this.caseFocus; if (lf && lf.focus) setTimeout(() => lf.focus({ preventScroll: true }), 0);
   }
   onRoute = () => {
-    const m = /^#\/work\/([\w-]+)/.exec(location.hash || ''), i = m ? this.PROJECTS.findIndex(p => p.slug === m[1]) : -1;
+    // clean links: /work/<slug>. Old #/work/<slug> links still open, and are tidied to the clean form.
+    const old = /^#\/work\/([\w-]+)/.exec(location.hash || '');
+    if (old) { try { history.replaceState(history.state, '', '/work/' + old[1] + location.search); } catch (e) {} }
+    const m = old || /^\/work\/([\w-]+)\/?$/.exec(location.pathname), i = m ? this.PROJECTS.findIndex(p => p.slug === m[1]) : -1;
     if (i >= 0) { if (this.state.open !== this.PROJECTS[i].slug) this.openCase(i, this.state.openFrom || 'projects', 'none'); }
     else if (this.state.open) { this.casePushed = false; this.doCloseCase(); }
   };
@@ -1350,7 +1374,7 @@ class Component extends DCLogic {
           heroTop: px(b.top), heroFs: px(b.fs), heroLineH: px(b.lineH), heroGap: px(b.gap), heroSub: px(b.sub), heroSubMax: px(b.subMax),
           ...(() => { const L = HB && HB.deskLayout ? HB.deskLayout(s.vw || window.innerWidth, s.vh || window.innerHeight) : { items: [] };
             return { deskItems: L.items.map(o => ({ src: o.src, left: o.x.toFixed(1) + 'px', top: o.y.toFixed(1) + 'px', width: o.w.toFixed(1) + 'px', rot: o.rot ? 'rotate(' + o.rot + 'deg)' : 'none' })), deskObjVis: s.deskObjs === false ? 'hidden' : 'visible' }; })(),
-          aboutRef: this.aboutRef, footWordBreak: phone ? 'block' : 'none', copyWrap: phone ? 'normal' : 'nowrap', copyAlign: phone ? 'center' : 'left', copyAlignSelf: phone ? 'center' : 'auto', copyBreak: phone ? 'block' : 'inline', emailFs: phone ? 'min(28px, 5.6vw)' : 'clamp(28px,3.4vw,48px)', emailWrap: phone ? 'nowrap' : 'wrap', emailGap: phone ? '4px' : '14px', footWordRef: this.footWordRef, footRef: this.footRef, aboutScroll: () => this.syncFoot(), footLi: li, footBe: be, footGh: gh, footEmail: email, copiedLabel: s.copied ? 'Copied' : '',
+          aboutRef: this.aboutRef, csFootWordRef: this.csFootWordRef, footWordBreak: phone ? 'block' : 'none', copyWrap: phone ? 'normal' : 'nowrap', copyAlign: phone ? 'center' : 'left', copyAlignSelf: phone ? 'center' : 'auto', copyBreak: phone ? 'block' : 'inline', emailFs: phone ? 'min(28px, 5.6vw)' : 'clamp(28px,3.4vw,48px)', emailWrap: phone ? 'nowrap' : 'wrap', emailGap: phone ? '4px' : '14px', footWordRef: this.footWordRef, footRef: this.footRef, aboutScroll: () => this.syncFoot(), footLi: li, footBe: be, footGh: gh, footEmail: email, copiedLabel: s.copied ? 'Copied' : '',
           copyEmail: () => { const done = () => { this.setState({ copied: true }); clearTimeout(this.copyT); this.copyT = setTimeout(() => this.setState({ copied: false }), 1600); }; try { navigator.clipboard.writeText(email).then(done, () => { this.legacyCopy(email); done(); }); } catch (e) { this.legacyCopy(email); done(); } }, aboutHidden: s.aboutOn ? 'false' : 'true', aboutTab: s.aboutOn ? '0' : '-1',
           aboutT: s.aboutOn ? 'translate3d(0,0,0)' : 'translate3d(0,100%,0)', aboutVis: s.aboutOn ? 'visible' : 'hidden', aboutVisDelay: s.aboutOn ? '0s' : '0.85s',
           carHintVis: s.aboutOn ? 'hidden' : 'visible',
