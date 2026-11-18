@@ -1169,7 +1169,7 @@ function createApartment(canvas, o = {}) {
       const dx = e.clientX - down.lx, dy = e.clientY - down.ly; down.lx = e.clientX; down.ly = e.clientY;
       if (Math.hypot(e.clientX - down.x, e.clientY - down.y) > 4) down.moved = true;
       if (down.moved && down.type !== 'touch') canvas.style.cursor = 'grabbing';
-      if (down.moved && (mode === 'explore' || mode === 'gate' || mode === 'seated') && !tw) {
+      if (down.moved && (mode === 'explore' || (mode === 'gate' && down.type !== 'touch') || mode === 'seated') && !tw) {
         const k = down.type === 'touch' ? 0.006 : 0.0042;
         P.yaw += dx * k; P.pitch = clamp(P.pitch + dy * k, -0.75, 0.6);
         if (mode === 'gate') P.yaw = clamp(P.yaw, -0.5, 0.5);
@@ -1189,7 +1189,7 @@ function createApartment(canvas, o = {}) {
     }
     if (hoverItem) { hoverItem = null; o.onShelfHover && o.onShelfHover(null); }
     const s = pickAt(e.clientX, e.clientY);
-    const usable = s && (mode === 'gate' ? (s === 'bell' || s === 'door-out') : mode === 'explore' && s !== 'bell' && s !== 'door-out');
+    const usable = s && mode === 'explore' && s !== 'bell' && s !== 'door-out';
     if ((usable ? s : null) !== hoverSpot) { hoverSpot = usable ? s : null; canvas.style.cursor = hoverSpot ? 'pointer' : 'grab'; o.onHover && o.onHover(hoverSpot); }
   };
   const onUp = e => {
@@ -1199,8 +1199,7 @@ function createApartment(canvas, o = {}) {
     { const lh = lampModes() && lampAt(e.clientX, e.clientY); if (lh) { toggleLamp(lh); if (e.pointerType === 'mouse') o.onShelfHover && o.onShelfHover({ text: lampTip(lh), x: e.clientX, y: e.clientY }); return; } }
     if (mode === 'shelf') { const it = pickItem(e.clientX, e.clientY); if (it) handleItem(it); else closeBook(); if (it && e.pointerType === 'mouse') o.onShelfHover && o.onShelfHover({ text: itemTip(it), x: e.clientX, y: e.clientY }); return; }
     const s = pickAt(e.clientX, e.clientY);
-    if (mode === 'gate' && !s) return;
-    if (mode === 'gate') { if (s === 'bell' || s === 'door-out') startFromGate(); return; }
+    if (mode === 'gate') return; // no bell: at the door only a scroll or swipe goes in
     if (mode !== 'explore' && mode !== 'walking') return;
     if (s && spots[s]) { if (prompt === s && mode === 'explore') { o.onInteract && o.onInteract(s); return; } goTo(s); return; }
     const fh = floorAt(e.clientX, e.clientY); if (fh) walkToPoint(fh.x, fh.z);
@@ -1254,7 +1253,7 @@ function createApartment(canvas, o = {}) {
     updateShelf(rawDt); updateLamp(rawDt);
     gap.visible = doorT < 0.05;
     bellT = Math.max(0, bellT - dt * 1.6);
-    bellBtn.position.z = 0.015 - Math.sin(Math.min(1, bellT) * Math.PI) * 0.008; bellBtnM.emissiveIntensity = 0.4 + bellT * 2.5 + (mode === 'gate' ? Math.sin(time * 2.5) * 0.25 + 0.25 : 0);
+    bellBtn.position.z = 0.015 - Math.sin(Math.min(1, bellT) * Math.PI) * 0.008; bellBtnM.emissiveIntensity = 0.4 + bellT * 2.5 ;
     // tv
     tvPower += (tvTarget - tvPower) * (reduce ? 1 : Math.min(1, rawDt * 1.4)); if (Math.abs(tvTarget - tvPower) < 0.002) tvPower = tvTarget;
     tvLight.intensity = tvPower * 2.2;
@@ -1323,7 +1322,7 @@ function createApartment(canvas, o = {}) {
       o.onTvRect && o.onTvRect(behind ? null : { x: x0, y: y0, w: x1 - x0, h: y1 - y0, pts }); tvRectOn = true;
     } else if (tvRectOn) { tvRectOn = false; o.onTvRect && o.onTvRect(null); }
     if (labelEls) {
-      camera.updateMatrixWorld(); const r = canvas.getBoundingClientRect(), showL = (mode === 'explore' || mode === 'walking') && inputOn, showB = mode === 'gate' && inputOn;
+      camera.updateMatrixWorld(); const r = canvas.getBoundingClientRect(), showL = (mode === 'explore' || mode === 'walking') && inputOn, showB = false;
       for (const id in labelEls) {
         const el = labelEls[id], p = LABEL_POS[id]; if (!p) continue; lv.set(p[0], p[1], p[2]); const d = Math.hypot(p[0] - P.x, p[2] - P.z);
         lv.project(camera); const vis = (id === 'bell' ? showB : showL && d > 0.7) && lv.z < 1 && Math.abs(lv.x) < 0.97 && Math.abs(lv.y) < 0.94;

@@ -130,9 +130,13 @@
     const base = H - CUE_SPACE(W), room = Math.max(60, base - (b.top + b.blockH + 28));
     const put = (id, x, w) => { const h = w / AR(id); out.push({ id, src: DESK.find(o => o.id === id).src, x, y: base - h, w, h, rot: 0 }); return h; };
     if (phone) {
-      let kw = W * 0.62, cw = W * 0.22, g = W * 0.04; const f = Math.min(1, room / (kw / AR('keyboard')));
-      kw *= f; cw *= f; const tot = kw + g + cw, x0 = (W - tot) / 2;
-      put('keyboard', x0, kw); put('coffee', x0 + kw + g, cw);
+      // notebook | keyboard | book | coffee, a little smaller than desktop; the notebook tucks off the left edge
+      let kw = W * 0.48, nw = W * 0.24, bw = W * 0.1, cw = W * 0.18, g = W * 0.02;
+      const tallest = Math.max(kw / AR('keyboard'), nw / AR('notebook'), bw / AR('book'), cw / AR('coffee'));
+      const f = Math.min(1, room / tallest);
+      kw *= f; nw *= f; bw *= f; cw *= f; g *= f;
+      const tot = nw + g + kw + g + bw + g + cw, x0 = Math.min((W - tot) / 2, W - tot - W * 0.02);
+      put('notebook', x0, nw); put('keyboard', x0 + nw + g, kw); put('book', x0 + nw + g + kw + g, bw); put('coffee', x0 + nw + g + kw + g + bw + g, cw);
       return { items: out };
     }
     let kw = u * (tablet ? 0.4 : 0.36), nw = u * 0.17, bw = u * 0.075, cw = u * 0.13, g = u * 0.024;
